@@ -5,7 +5,7 @@
 @font-face {
   font-family: 'Inter';
   src: url('../../fonts/Inter-Regular.woff2') format('woff2'),
-       url('../../fonts/Inter-Regular.woff') format('woff');
+				url('../../fonts/Inter-Regular.woff') format('woff');
   font-weight: 400;
   font-style: normal;
 }
@@ -13,11 +13,79 @@
 @font-face {
   font-family: 'Inter';
   src: url('../../fonts/Inter-SemiBold.woff2') format('woff2'),
-       url('../../fonts/Inter-SemiBold.woff') format('woff');
+				url('../../fonts/Inter-SemiBold.woff') format('woff');
   font-weight: 600;
   font-style: normal;
 }
 
-body {
+.body {
 	font-family: 'Inter', sans-serif;
+	display: flex;
+	flex-direction: column;
+	padding: 50px 0px 0px 0px;
+
+	.header{
+		justify-items: center;
+
+		.header__title{
+			font-size: 42px;
+			font-weight: 600;
+			margin: 0px 0px 10px 0px;
+		}
+
+		.header__link{
+			font-size: 20px;
+			font-weight: 600;
+			text-decoration: none;
+			
+			&:hover{
+				text-decoration: underline;
+			}
+		}
+	}
+
+	.main-content {
+		margin: 40px 0px 0px 0px;
+		flex: 1 1 auto;
+
+		.actions-wrapper {
+			display: flex;
+			justify-content: center;
+			gap: 20px;
+			margin: 0px 0px 40px 0px;
+
+			.form {
+				display: flex;
+				gap: 20px;
+				
+				.form__input {
+					// font-family: 'Inter', sans-serif;
+
+				}
+
+				/* .form__button {
+					text-transform: uppercase;
+				} */
+			}
+		}
+
+		.contact-list-wrapper {
+			display: flex;
+			justify-content: center;
+			gap: 20px;
+
+			.contact-list__item {
+				font-size: 22px;
+				font-weight: 600;
+				line-height: 204.54%;
+				text-transform: uppercase;
+				width: 250px;
+				height: 45px;
+				background-color: rgb(197, 233, 196);
+				border-top: 1px solid rgb(71, 150, 69);
+				border-bottom: 1px solid rgb(71, 150, 69);
+				padding: 0px 0px 0px 15px;
+			}
+		}
+	}
 }
