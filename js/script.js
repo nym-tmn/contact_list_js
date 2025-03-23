@@ -1,3 +1,15 @@
+const countersCollection = new Map();
+
+document.querySelectorAll('.contact-list__item')
+	.forEach((elem) => {
+	countersCollection.set(elem.dataset.item, 0);
+
+	let countElement = document.createElement('div');
+	countElement.innerText = countersCollection.get(elem.dataset.item);
+	countElement.classList.add('contact-list__counter');
+	elem.append(countElement);
+})
+
 let form = document.querySelector('.form');
 form.addEventListener('submit', (event) => {
 
@@ -19,7 +31,15 @@ form.addEventListener('submit', (event) => {
 	<button class="contact__button" type="button"><img src="./img/delete_contact_card_icon.svg" alt="Delete current contact button"></button>
 	`;
 
-	document
-		.querySelector(`[data-item=${contact.firstName[0].toLowerCase()}]`)
-		.after(contactCard);
+	const currentItem = document.querySelector(`[data-item=${contact.firstName[0].toLowerCase()}]`);
+	currentItem.classList.add('contact-list__item_active');
+	currentItem.after(contactCard);
+	
+	countersCollection.forEach((value, key) => {
+		if (key === currentItem.dataset.item) {
+			countersCollection.set(key, ++value)
+		}
+	})
+
+	currentItem.firstElementChild.innerText = `${countersCollection.get(currentItem.dataset.item)}`;
 })
