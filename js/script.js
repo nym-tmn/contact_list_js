@@ -19,7 +19,7 @@ document.querySelectorAll('.contact-list__item')
 document.querySelectorAll('.contact-list').forEach((elem) => {
 	elem.addEventListener('click', (event) => {
 
-		let contactListItem = event.target.closest(`.contact-list__item`);
+		const contactListItem = event.target.closest(`.contact-list__item`);
 		contactListItem.nextElementSibling.hidden = !contactListItem.nextElementSibling.hidden;
 	})
 })
@@ -47,6 +47,8 @@ form.addEventListener('submit', (event) => {
 
 	const currentItem = document.querySelector(`[data-item=${contact.firstName[0].toLowerCase()}]`);
 	currentItem.classList.add('contact-list__item_active');
+
+	currentItem.nextElementSibling.prepend(contactCard);
 
 	countersCollection.forEach((value, key) => {
 		if (key === currentItem.dataset.item) {
