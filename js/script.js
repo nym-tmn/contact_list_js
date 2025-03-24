@@ -2,15 +2,29 @@ const countersCollection = new Map();
 
 document.querySelectorAll('.contact-list__item')
 	.forEach((elem) => {
+
 	countersCollection.set(elem.dataset.item, 0);
 
-	let countElement = document.createElement('div');
+	const countElement = document.createElement('div');
 	countElement.innerText = countersCollection.get(elem.dataset.item);
 	countElement.classList.add('contact-list__counter');
-	elem.append(countElement);
+		elem.append(countElement);
+		
+		const contactsContainer = document.createElement('div');
+		contactsContainer.classList.add('contacts-container');
+		contactsContainer.hidden = true;
+		elem.after(contactsContainer);
+	})
+
+document.querySelectorAll('.contact-list').forEach((elem) => {
+	elem.addEventListener('click', (event) => {
+
+		let contactListItem = event.target.closest(`.contact-list__item`);
+		contactListItem.nextElementSibling.hidden = !contactListItem.nextElementSibling.hidden;
+	})
 })
 
-let form = document.querySelector('.form');
+const form = document.querySelector('.form');
 form.addEventListener('submit', (event) => {
 
 	event.preventDefault();
@@ -20,10 +34,10 @@ form.addEventListener('submit', (event) => {
 	contact.lastName = form.elements.lastName.value;
 	contact.phone = form.elements.phone.value;
 
-	let contactCard = document.createElement('div');
+	const contactCard = document.createElement('div');
 	contactCard.classList.add('contact');
 	contactCard.innerHTML = `
-	<div class="contact__card-info">
+	<div class="contact__info">
 	<div>First name: ${contact.firstName}</div>
 	<div>Last name: ${contact.lastName}</div>
 	<div>Phone: ${contact.phone}</div>
@@ -33,8 +47,7 @@ form.addEventListener('submit', (event) => {
 
 	const currentItem = document.querySelector(`[data-item=${contact.firstName[0].toLowerCase()}]`);
 	currentItem.classList.add('contact-list__item_active');
-	currentItem.after(contactCard);
-	
+
 	countersCollection.forEach((value, key) => {
 		if (key === currentItem.dataset.item) {
 			countersCollection.set(key, ++value)
