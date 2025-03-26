@@ -2,7 +2,7 @@ const countersCollection = new Map();
 const contactsCollection = new Set();
 
 document.querySelectorAll('.contact-list__item')
-	.forEach((elem) => {
+	.forEach(elem => {
 
 		countersCollection.set(elem.dataset.item, 0);
 
@@ -17,11 +17,11 @@ document.querySelectorAll('.contact-list__item')
 		elem.after(contactsContainer);
 	})
 
-document.querySelectorAll('.contact-list').forEach((elem) => {
+document.querySelectorAll('.contact-list').forEach(elem => {
 	elem.addEventListener('click', (event) => {
 
 		const contactListItem = event.target.closest('.contact-list__item');
-		if (contactListItem.contains(event.target)) {
+		if (contactListItem && contactListItem.contains(event.target)) {
 			contactListItem.nextElementSibling.hidden = !contactListItem.nextElementSibling.hidden;
 			return;
 		}
@@ -63,7 +63,7 @@ form.addEventListener('submit', (event) => {
 
 	const currentItem = document.querySelector(`[data-item=${contact.firstName[0].toLowerCase()}]`);
 	currentItem.classList.add('contact-list__item_active');
-	
+
 	if (!contactsCollection.has(jsonContact)) {
 		const contactCard = document.createElement('div');
 		contactCard.classList.add('contact');
@@ -84,7 +84,7 @@ form.addEventListener('submit', (event) => {
 				countersCollection.set(key, ++value)
 			}
 		})
-	
+
 		currentItem.firstElementChild.innerText = `${countersCollection.get(currentItem.dataset.item)}`;
 	} else {
 		errorMessage.classList.add('errorVisible');
@@ -92,4 +92,8 @@ form.addEventListener('submit', (event) => {
 	}
 
 	contactsCollection.add(jsonContact);
+
+	if (!currentItem.nextElementSibling.hidden) {
+		currentItem.nextElementSibling.hidden = true;
+	}
 })
