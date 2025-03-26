@@ -21,7 +21,7 @@ document.querySelectorAll('.contact-list').forEach((elem) => {
 	elem.addEventListener('click', (event) => {
 
 		const contactListItem = event.target.closest('.contact-list__item');
-		if (event.target === contactListItem) {
+		if (contactListItem.contains(event.target)) {
 			contactListItem.nextElementSibling.hidden = !contactListItem.nextElementSibling.hidden;
 			return;
 		}
