@@ -97,3 +97,22 @@ form.addEventListener('submit', (event) => {
 		currentItem.nextElementSibling.hidden = true;
 	}
 })
+
+document.querySelector('.button-clear-list')
+	.addEventListener('click', () => {
+
+		document.querySelectorAll('.contact')
+			.forEach(elem => elem.remove())
+
+		document.querySelectorAll('.contact-list__item_active')
+			.forEach(elem => {
+				countersCollection.forEach((value, key) => {
+					if (key === elem.dataset.item) {
+						countersCollection.set(key, value = 0);
+						elem.classList.remove('contact-list__item_active');
+					}
+				})
+			})
+
+		contactsCollection.clear();
+	})
