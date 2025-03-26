@@ -1,4 +1,5 @@
 const countersCollection = new Map();
+const contactsCollection = new Set();
 
 document.querySelectorAll('.contact-list__item')
 	.forEach((elem) => {
@@ -28,7 +29,8 @@ document.querySelectorAll('.contact-list').forEach((elem) => {
 		const deleteButton = event.target.closest('.contact__button-img');
 		if (event.target === deleteButton) {
 			const currentItem = event.target.parentElement.parentElement.parentElement.previousElementSibling;
-			const currentContact = event.target.parentElement.parentElement;
+			const deletedContact = event.target.parentElement.parentElement;
+			contactsCollection.delete(...Object.values({ ...deletedContact.dataset }));
 
 			countersCollection.forEach((value, key) => {
 				if (key === currentItem.dataset.item) {
@@ -38,10 +40,15 @@ document.querySelectorAll('.contact-list').forEach((elem) => {
 			})
 
 			currentItem.firstElementChild.innerText = `${countersCollection.get(currentItem.dataset.item)}`
-			currentContact.remove();
+			deletedContact.remove();
 		}
 	})
 })
+
+const errorMessage = document.createElement('div');
+errorMessage.classList.add('error');
+errorMessage.innerText = 'The contact list cannot contain 2 identical contacts.';
+document.querySelector('.actions-wrapper').append(errorMessage);
 
 const form = document.querySelector('.form');
 form.addEventListener('submit', (event) => {
@@ -52,27 +59,37 @@ form.addEventListener('submit', (event) => {
 	contact.firstName = form.elements.firstName.value;
 	contact.lastName = form.elements.lastName.value;
 	contact.phone = form.elements.phone.value;
-
-	const contactCard = document.createElement('div');
-	contactCard.classList.add('contact');
-	contactCard.innerHTML = `
-	<div class="contact__info">
-	<div>First name: ${contact.firstName}</div>
-	<div>Last name: ${contact.lastName}</div>
-	<div>Phone: ${contact.phone}</div>
-	</div>
-	<button class="contact__button" type="button"><img class="contact__button-img" src="./img/delete_contact_card_icon.svg" alt="Delete current contact button"></button>
-	`;
+	const jsonContact = JSON.stringify(contact);
 
 	const currentItem = document.querySelector(`[data-item=${contact.firstName[0].toLowerCase()}]`);
 	currentItem.classList.add('contact-list__item_active');
-	currentItem.nextElementSibling.prepend(contactCard);
+	
+	if (!contactsCollection.has(jsonContact)) {
+		const contactCard = document.createElement('div');
+		contactCard.classList.add('contact');
+		contactCard.setAttribute('data-json-id', jsonContact);
+		contactCard.innerHTML = `
+		<div class="contact__info">
+		<div>First name: ${contact.firstName}</div>
+		<div>Last name: ${contact.lastName}</div>
+		<div>Phone: ${contact.phone}</div>
+		</div>
+		<button class="contact__button" type="button"><img class="contact__button-img" src="./img/delete_contact_card_icon.svg" alt="Delete current contact button"></button>
+		`;
 
-	countersCollection.forEach((value, key) => {
-		if (key === currentItem.dataset.item) {
-			countersCollection.set(key, ++value)
-		}
-	})
+		currentItem.nextElementSibling.prepend(contactCard);
 
-	currentItem.firstElementChild.innerText = `${countersCollection.get(currentItem.dataset.item)}`;
+		countersCollection.forEach((value, key) => {
+			if (key === currentItem.dataset.item) {
+				countersCollection.set(key, ++value)
+			}
+		})
+	
+		currentItem.firstElementChild.innerText = `${countersCollection.get(currentItem.dataset.item)}`;
+	} else {
+		errorMessage.classList.add('errorVisible');
+		setTimeout(() => errorMessage.classList.remove('errorVisible'), 5000)
+	}
+
+	contactsCollection.add(jsonContact);
 })
