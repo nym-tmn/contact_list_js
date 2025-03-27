@@ -5,6 +5,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="./styles/css/style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<script src="./js/script.js" defer></script>
 	<title>Contact List JS</title>
 </head>
@@ -22,8 +23,8 @@
 				<input class="form__input" type="tel" placeholder="Phone +X XXX XXX XX XX" name="phone">
 				<input class="form__button button" type="submit" value="ADD">
 			</form>
-			<button class="button-clear-list" type="button">Clear List</button>
-			<button class="button" type="button">Search</button>
+			<button class="button" data-clear="clear" type="button">Clear List</button>
+			<button class="button" data-search=search type="button">Search</button>
 		</div>
 		<div class="contact-list-wrapper">
 			<div class="contact-list">
@@ -56,6 +57,12 @@
 				<div class="contact-list__item" data-item="y">y</div>
 				<div class="contact-list__item" data-item="z">z</div>
 			</div>
+		</div>
+		<div class="dialog">
+			<div class="dialog-wrapper">
+				<h2>Search contact</h2>
+			</div>
+			<button class="dialog__close button button_big" type="button">X</button>
 		</div>
 	</main>
 </body>

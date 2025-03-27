@@ -59,6 +59,7 @@
 			.form {
 				display: flex;
 				gap: 20px;
+
 			}
 		}
 		.error {
@@ -120,6 +121,12 @@
 					.contact__button {
 						all: unset;
 						cursor: pointer;
+						font-size: 18px;
+						transition: color 0.3s;
+					}
+
+					.contact__button:hover {
+						color: red;
 					}
 				}
 			}
@@ -136,7 +143,6 @@
 				padding: 0px 35px 0px 15px;
 				display: flex;
 				justify-content: space-between;
-				cursor: pointer;
 
 				.contact-list__counter {
 					display: none;
@@ -152,4 +158,8 @@
 			}
 		}
 	}
+
+	.button {
+					border: 2px solid red;
+				}
 }

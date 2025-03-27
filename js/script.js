@@ -26,10 +26,11 @@ document.querySelectorAll('.contact-list').forEach(elem => {
 			return;
 		}
 
-		const deleteButton = event.target.closest('.contact__button-img');
-		if (event.target === deleteButton) {
-			const currentItem = event.target.parentElement.parentElement.parentElement.previousElementSibling;
-			const deletedContact = event.target.parentElement.parentElement;
+		const deleteButton = event.target.closest('.contact__button');
+		if (deleteButton.contains(event.target)) {
+
+			const currentItem = deleteButton.parentElement.parentElement.previousElementSibling;
+			const deletedContact = deleteButton.parentElement;
 			contactsCollection.delete(...Object.values({ ...deletedContact.dataset }));
 
 			countersCollection.forEach((value, key) => {
@@ -74,7 +75,9 @@ form.addEventListener('submit', (event) => {
 		<div>Last name: ${contact.lastName}</div>
 		<div>Phone: ${contact.phone}</div>
 		</div>
-		<button class="contact__button" type="button"><img class="contact__button-img" src="./img/delete_contact_card_icon.svg" alt="Delete current contact button"></button>
+		<button class="contact__button" type="button">
+		<i class="fa-solid fa-square-xmark"></i>
+		</button>
 		`;
 
 		currentItem.nextElementSibling.prepend(contactCard);
@@ -98,7 +101,7 @@ form.addEventListener('submit', (event) => {
 	}
 })
 
-document.querySelector('.button-clear-list')
+document.querySelector('[data-clear=clear]')
 	.addEventListener('click', () => {
 
 		document.querySelectorAll('.contact')
@@ -116,3 +119,9 @@ document.querySelector('.button-clear-list')
 
 		contactsCollection.clear();
 	})
+
+document.querySelector('[data-search=search]')
+	.addEventListener('click', () => {
+		console.log('ddd');
+		
+	})  
