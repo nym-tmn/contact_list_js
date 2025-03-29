@@ -59,9 +59,9 @@
 			.form {
 				display: flex;
 				gap: 20px;
-
 			}
 		}
+
 		.error {
 			position: absolute;
 			top: 34px;
@@ -76,8 +76,8 @@
 		}
 
 		.errorVisible {
-	visibility: visible;
-	animation: fadeIn 5s;
+			visibility: visible;
+			animation: fadeIn 5s;
 		}
 
 		@keyframes fadeIn {
@@ -118,14 +118,14 @@
 						flex: 1 1 auto;
 					}
 
-					.contact__button {
+					.contact__btn {
 						all: unset;
 						cursor: pointer;
 						font-size: 18px;
 						transition: color 0.3s;
 					}
 
-					.contact__button:hover {
+					.contact__btn:hover {
 						color: red;
 					}
 				}
@@ -149,7 +149,7 @@
 				}
 			}
 
-			.contact-list__item_active {
+			.contact-list__item[data-active=true] {
 				background-color: rgb(136, 209, 135);
 
 				.contact-list__counter {
@@ -158,8 +158,4 @@
 			}
 		}
 	}
-
-	.button {
-					border: 2px solid red;
-				}
 }

@@ -1,7 +1,9 @@
+'use strict'
+
 const countersCollection = new Map();
 const contactsCollection = new Set();
 
-document.querySelectorAll('.contact-list__item')
+document.querySelectorAll('.js-contact-list__item')
 	.forEach(elem => {
 
 		countersCollection.set(elem.dataset.item, 0);
@@ -12,36 +14,41 @@ document.querySelectorAll('.contact-list__item')
 		elem.append(countElement);
 
 		const contactsContainer = document.createElement('div');
-		contactsContainer.classList.add('contacts-container');
 		contactsContainer.hidden = true;
 		elem.after(contactsContainer);
 	})
 
-document.querySelectorAll('.contact-list').forEach(elem => {
+document.querySelectorAll('.js-contact-list').forEach(elem => {
 	elem.addEventListener('click', (event) => {
 
-		const contactListItem = event.target.closest('.contact-list__item');
+		const contactListItem = event.target.closest('.js-contact-list__item');
 		if (contactListItem && contactListItem.contains(event.target)) {
-			contactListItem.nextElementSibling.hidden = !contactListItem.nextElementSibling.hidden;
+			contactListItem.hasAttribute('data-active')
+				? contactListItem.nextElementSibling.hidden = !contactListItem.nextElementSibling.hidden
+				: null;
 			return;
 		}
 
-		const deleteButton = event.target.closest('.contact__button');
-		if (deleteButton.contains(event.target)) {
+		const deleteButton = event.target.closest('.js-contact__btn');
+		if (deleteButton && deleteButton.contains(event.target)) {
 
-			const currentItem = deleteButton.parentElement.parentElement.previousElementSibling;
+			const contactListItem = deleteButton.parentElement.parentElement.previousElementSibling;
 			const deletedContact = deleteButton.parentElement;
 			contactsCollection.delete(...Object.values({ ...deletedContact.dataset }));
 
 			countersCollection.forEach((value, key) => {
-				if (key === currentItem.dataset.item) {
+				if (key === contactListItem.dataset.item) {
 					countersCollection.set(key, --value);
-					if (value === 0) currentItem.classList.remove('contact-list__item_active');
+					if (value === 0) contactListItem.removeAttribute('data-active');
 				}
 			})
 
-			currentItem.firstElementChild.innerText = `${countersCollection.get(currentItem.dataset.item)}`
+			contactListItem.firstElementChild.innerText = `${countersCollection.get(contactListItem.dataset.item)}`
 			deletedContact.remove();
+
+			!contactListItem.hasAttribute('data-active')
+				? contactListItem.nextElementSibling.hidden = true
+				: null;
 		}
 	})
 })
@@ -49,9 +56,9 @@ document.querySelectorAll('.contact-list').forEach(elem => {
 const errorMessage = document.createElement('div');
 errorMessage.classList.add('error');
 errorMessage.innerText = 'The contact list cannot contain 2 identical contacts.';
-document.querySelector('.actions-wrapper').append(errorMessage);
+document.querySelector('.js-actions-wrapper').append(errorMessage);
 
-const form = document.querySelector('.form');
+const form = document.querySelector('.js-form');
 form.addEventListener('submit', (event) => {
 
 	event.preventDefault();
@@ -63,11 +70,11 @@ form.addEventListener('submit', (event) => {
 	const jsonContact = JSON.stringify(contact);
 
 	const currentItem = document.querySelector(`[data-item=${contact.firstName[0].toLowerCase()}]`);
-	currentItem.classList.add('contact-list__item_active');
+	currentItem.setAttribute('data-active', 'true')
 
 	if (!contactsCollection.has(jsonContact)) {
 		const contactCard = document.createElement('div');
-		contactCard.classList.add('contact');
+		contactCard.classList.add('contact', 'js-contact');
 		contactCard.setAttribute('data-json-id', jsonContact);
 		contactCard.innerHTML = `
 		<div class="contact__info">
@@ -75,7 +82,7 @@ form.addEventListener('submit', (event) => {
 		<div>Last name: ${contact.lastName}</div>
 		<div>Phone: ${contact.phone}</div>
 		</div>
-		<button class="contact__button" type="button">
+		<button class="contact__btn js-contact__btn" type="button">
 		<i class="fa-solid fa-square-xmark"></i>
 		</button>
 		`;
@@ -101,18 +108,19 @@ form.addEventListener('submit', (event) => {
 	}
 })
 
-document.querySelector('[data-clear=clear]')
+document.querySelector('.js-btn-clear-list')
 	.addEventListener('click', () => {
 
-		document.querySelectorAll('.contact')
+		document.querySelectorAll('.js-contact')
 			.forEach(elem => elem.remove())
 
-		document.querySelectorAll('.contact-list__item_active')
+		document.querySelectorAll('[data-active=true]')
 			.forEach(elem => {
-				countersCollection.forEach((value, key) => {
+				countersCollection.forEach((_, key) => {
 					if (key === elem.dataset.item) {
-						countersCollection.set(key, value = 0);
-						elem.classList.remove('contact-list__item_active');
+						countersCollection.set(key, 0);
+						elem.removeAttribute('data-active');
+						elem.nextElementSibling.hidden = true;
 					}
 				})
 			})
@@ -120,8 +128,7 @@ document.querySelector('[data-clear=clear]')
 		contactsCollection.clear();
 	})
 
-document.querySelector('[data-search=search]')
+document.querySelector('.js-btn-search')
 	.addEventListener('click', () => {
 		console.log('ddd');
-		
 	})  
