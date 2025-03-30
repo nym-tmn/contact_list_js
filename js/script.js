@@ -14,6 +14,7 @@ document.querySelectorAll('.js-contact-list__item')
 		elem.append(countElement);
 
 		const contactsContainer = document.createElement('div');
+		contactsContainer.classList.add('contacts')
 		contactsContainer.hidden = true;
 		elem.after(contactsContainer);
 	})
@@ -29,7 +30,7 @@ document.querySelectorAll('.js-contact-list').forEach(elem => {
 			return;
 		}
 
-		const deleteButton = event.target.closest('.js-contact__btn');
+		const deleteButton = event.target.closest('.js-item-contacts__btn');
 		if (deleteButton && deleteButton.contains(event.target)) {
 
 			const contactListItem = deleteButton.parentElement.parentElement.previousElementSibling;
@@ -56,9 +57,9 @@ document.querySelectorAll('.js-contact-list').forEach(elem => {
 const errorMessage = document.createElement('div');
 errorMessage.classList.add('error');
 errorMessage.innerText = 'The contact list cannot contain 2 identical contacts.';
-document.querySelector('.js-actions-wrapper').append(errorMessage);
+document.querySelector('.js-actions').append(errorMessage);
 
-const form = document.querySelector('.js-form');
+const form = document.querySelector('.js-actions__form');
 form.addEventListener('submit', (event) => {
 
 	event.preventDefault();
@@ -74,17 +75,17 @@ form.addEventListener('submit', (event) => {
 
 	if (!contactsCollection.has(jsonContact)) {
 		const contactCard = document.createElement('div');
-		contactCard.classList.add('contact', 'js-contact');
+		contactCard.classList.add('contacts__item', 'item-contacts', 'js-contacts__item');
 		contactCard.setAttribute('data-json-id', jsonContact);
 		contactCard.innerHTML = `
-		<div class="contact__info">
-		<div>First name: ${contact.firstName}</div>
-		<div>Last name: ${contact.lastName}</div>
-		<div>Phone: ${contact.phone}</div>
-		</div>
-		<button class="contact__btn js-contact__btn" type="button">
-		<i class="fa-solid fa-square-xmark"></i>
-		</button>
+			<div class="item-contacts__info">
+				<div class="item-contacts__first-name">First name: ${contact.firstName}</div>
+				<div class="item-contacts__last-name">Last name: ${contact.lastName}</div>
+				<div class="item-contacts__phone">Phone: ${contact.phone}</div>
+			</div>
+			<button class="item-contacts__btn btn-icon js-item-contacts__btn" type="button">
+				<i class="fa-solid fa-square-xmark"></i>
+			</button>
 		`;
 
 		currentItem.nextElementSibling.prepend(contactCard);
@@ -97,8 +98,8 @@ form.addEventListener('submit', (event) => {
 
 		currentItem.firstElementChild.innerText = `${countersCollection.get(currentItem.dataset.item)}`;
 	} else {
-		errorMessage.classList.add('errorVisible');
-		setTimeout(() => errorMessage.classList.remove('errorVisible'), 5000)
+		errorMessage.classList.add('error-visible');
+		setTimeout(() => errorMessage.classList.remove('error-visible'), 5000)
 	}
 
 	contactsCollection.add(jsonContact);
@@ -108,10 +109,10 @@ form.addEventListener('submit', (event) => {
 	}
 })
 
-document.querySelector('.js-btn-clear-list')
+document.querySelector('.js-actions__clear-list')
 	.addEventListener('click', () => {
 
-		document.querySelectorAll('.js-contact')
+		document.querySelectorAll('.js-contacts__item')
 			.forEach(elem => elem.remove())
 
 		document.querySelectorAll('[data-active=true]')
@@ -127,8 +128,3 @@ document.querySelector('.js-btn-clear-list')
 
 		contactsCollection.clear();
 	})
-
-document.querySelector('.js-btn-search')
-	.addEventListener('click', () => {
-		console.log('ddd');
-	})  
