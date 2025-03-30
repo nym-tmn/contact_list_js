@@ -128,3 +128,58 @@ document.querySelector('.js-actions__clear-list')
 
 		contactsCollection.clear();
 	})
+
+document.querySelector('.js-actions__search')
+	.addEventListener('click', () => {
+		document.querySelector('[data-isvisible=false]').dataset.isvisible = true;
+	})
+
+document.querySelector('.js-search-modal__close')
+	.addEventListener('click', () => {
+		document.querySelector('[data-isvisible=true]').dataset.isvisible = false;
+	})
+
+document.querySelector('.search-modal__input')
+	.addEventListener('input', (event) => {
+
+		let currentContact = null;
+		let isEmpty = document.querySelector('.search-modal__empty');
+
+		document.querySelectorAll('.js-search-modal__contact')
+			.forEach(elem => elem.remove());
+
+		contactsCollection.forEach((elem) => {
+
+			currentContact = JSON.parse(elem);
+
+			if (currentContact.lastName.startsWith(`${event.target.value}`)) {
+				const foundContact = document.createElement('div');
+				foundContact.classList.add('search-modal__contact', 'item-contacts', 'js-search-modal__contact');
+				foundContact.innerHTML = `
+
+						<div class="item-contacts__info">
+							<div class="item-contacts__firstName">First name: ${currentContact.firstName}</div>
+							<div class="item-contacts__lastName">Last name: ${currentContact.lastName}</div>
+							<div class="item-contacts__phone">Phone: ${currentContact.phone}</div>
+						</div>
+						<div class="item-contacts__btn-wrapper">
+							<button class="item-contacts__btn btn-icon">
+								<i class="fa-solid fa-pen-to-square"></i>
+							</button>
+							<button class="item-contacts__btn btn-icon">
+								<i class="fa-solid fa-square-xmark"></i>
+							</button>
+						</div>`;
+				document.querySelector('.search-modal__contacts').append(foundContact);
+			}
+		})
+
+		if (!event.target.value) {
+			document.querySelectorAll('.js-search-modal__contact')
+				.forEach(elem => elem.remove())
+		}
+
+		document.querySelectorAll('.js-search-modal__contact').length > 0
+			? isEmpty.toggleAttribute('hidden', true)
+			: isEmpty.toggleAttribute('hidden', false)
+	});
