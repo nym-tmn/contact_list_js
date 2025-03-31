@@ -5,7 +5,6 @@ const contactsCollection = new Set();
 
 document.querySelectorAll('.js-contact-list__item')
 	.forEach(elem => {
-
 		countersCollection.set(elem.dataset.item, 0);
 
 		const countElement = document.createElement('div');
@@ -31,6 +30,7 @@ document.querySelectorAll('.js-contact-list').forEach(elem => {
 		}
 
 		const deleteButton = event.target.closest('.js-item-contacts__btn');
+		
 		if (deleteButton && deleteButton.contains(event.target)) {
 
 			const contactListItem = deleteButton.parentElement.parentElement.previousElementSibling;
@@ -143,43 +143,31 @@ document.querySelector('.search-modal__input')
 	.addEventListener('input', (event) => {
 
 		let currentContact = null;
-		let isEmpty = document.querySelector('.search-modal__empty');
 
-		document.querySelectorAll('.js-search-modal__contact')
+		Array.from(document.querySelector('.js-search-modal__contacts').children)
 			.forEach(elem => elem.remove());
 
 		contactsCollection.forEach((elem) => {
 
 			currentContact = JSON.parse(elem);
 
-			if (currentContact.lastName.startsWith(`${event.target.value}`)) {
-				const foundContact = document.createElement('div');
-				foundContact.classList.add('search-modal__contact', 'item-contacts', 'js-search-modal__contact');
-				foundContact.innerHTML = `
+			if (currentContact.lastName.startsWith(`${event.target.value[0].toLowerCase()}`) || currentContact.lastName.startsWith(`${event.target.value[0].toUpperCase()}`)) {
+				const editButton = document.createElement('button');
+				editButton.setAttribute('type', 'button');
+				editButton.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-padding', 'js-item-contacts__btn');
+				editButton.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
 
-						<div class="item-contacts__info">
-							<div class="item-contacts__firstName">First name: ${currentContact.firstName}</div>
-							<div class="item-contacts__lastName">Last name: ${currentContact.lastName}</div>
-							<div class="item-contacts__phone">Phone: ${currentContact.phone}</div>
-						</div>
-						<div class="item-contacts__btn-wrapper">
-							<button class="item-contacts__btn btn-icon">
-								<i class="fa-solid fa-pen-to-square"></i>
-							</button>
-							<button class="item-contacts__btn btn-icon">
-								<i class="fa-solid fa-square-xmark"></i>
-							</button>
-						</div>`;
-				document.querySelector('.search-modal__contacts').append(foundContact);
+				const targetElemClone = document.querySelector(`[data-json-id='${elem}']`).cloneNode(true);
+				targetElemClone.classList.add('item-contacts_with-extra-padding')
+
+				document.querySelector('.search-modal__contacts').append(targetElemClone);
+
+				targetElemClone.lastElementChild.before(editButton);
 			}
 		})
 
 		if (!event.target.value) {
-			document.querySelectorAll('.js-search-modal__contact')
-				.forEach(elem => elem.remove())
+			Array.from(document.querySelector('.js-search-modal__contacts').children)
+				.forEach(elem => elem.remove());
 		}
-
-		document.querySelectorAll('.js-search-modal__contact').length > 0
-			? isEmpty.toggleAttribute('hidden', true)
-			: isEmpty.toggleAttribute('hidden', false)
 	});

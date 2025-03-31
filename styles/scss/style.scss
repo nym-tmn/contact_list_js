@@ -136,9 +136,14 @@
 	}
 }
 
+.contacts {
+	&__item {
+		display: flex;
+		justify-content: space-between;
+	}
+}
+
 .item-contacts {
-	display: flex;
-	justify-content: space-between;
 	padding: 5px 10px;
 	background-color: rgba(197, 190, 228, 0.658);
 	border-bottom: 1px solid rgb(157, 113, 182);
@@ -148,12 +153,10 @@
 	&__info {
 		flex-grow: 1;
 	}
-}
 
-.item-contacts__btn-wrapper {
-	display: flex;
-	gap: 10px;
-	margin: 0px 30px 0px 0px;
+	&_with-extra-padding {
+		padding-right: 50px;
+	}
 }
 
 .search-modal {
@@ -214,14 +217,14 @@
 		overflow-y: auto;
 	}
 
-	&__empty {
+	/* &__empty {
 		font-size: 30px;
 		color: rgb(128, 128, 128);
-	}
+	} */
 
-	&__empty[hidden] {
+	/* &__empty[hidden] {
 		display: none;
-	}
+	} */
 
 	&[data-isvisible=false] {
 		display: none;
@@ -237,6 +240,8 @@
 	cursor: pointer;
 	font-size: 18px;
 	transition: color 0.3s;
+	height: fit-content;
+	align-self: center;
 
 	&:hover {
 		color: red;
@@ -245,5 +250,9 @@
 	&_big {
 		font-size: 23px;
 		align-self: start;
+	}
+
+	&_with-extra-padding {
+		padding: 0px 10px 0px 0px;
 	}
 }
