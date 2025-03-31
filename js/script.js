@@ -141,17 +141,22 @@ document.querySelector('.js-search-modal__close')
 
 document.querySelector('.search-modal__input')
 	.addEventListener('input', (event) => {
+		console.log(document.querySelector('.js-search-modal__contacts').children);
 
 		let currentContact = null;
+		let isMatch = null;
 
 		Array.from(document.querySelector('.js-search-modal__contacts').children)
-			.forEach(elem => elem.remove());
+			.forEach(elem => elem.remove())
 
 		contactsCollection.forEach((elem) => {
 
 			currentContact = JSON.parse(elem);
+			isMatch = currentContact.lastName.toLowerCase().startsWith(`${event.target.value.toLowerCase()}`);
 
-			if (currentContact.lastName.startsWith(`${event.target.value[0].toLowerCase()}`) || currentContact.lastName.startsWith(`${event.target.value[0].toUpperCase()}`)) {
+			if (isMatch) {
+				console.log('isHear');
+				
 				const editButton = document.createElement('button');
 				editButton.setAttribute('type', 'button');
 				editButton.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-padding', 'js-item-contacts__btn');
@@ -160,13 +165,15 @@ document.querySelector('.search-modal__input')
 				const targetElemClone = document.querySelector(`[data-json-id='${elem}']`).cloneNode(true);
 				targetElemClone.classList.add('item-contacts_with-extra-padding')
 
-				document.querySelector('.search-modal__contacts').append(targetElemClone);
+				document.querySelector('.js-search-modal__contacts').prepend(targetElemClone);
 
 				targetElemClone.lastElementChild.before(editButton);
 			}
 		})
 
 		if (!event.target.value) {
+			console.log('again clear');
+			
 			Array.from(document.querySelector('.js-search-modal__contacts').children)
 				.forEach(elem => elem.remove());
 		}
