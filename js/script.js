@@ -29,8 +29,8 @@ document.querySelectorAll('.js-contact-list').forEach(elem => {
 			return;
 		}
 
-		const deleteButton = event.target.closest('.js-item-contacts__btn');
-		
+		const deleteButton = event.target.closest('.js-delete-contact');
+
 		if (deleteButton && deleteButton.contains(event.target)) {
 
 			const contactListItem = deleteButton.parentElement.parentElement.previousElementSibling;
@@ -70,7 +70,7 @@ form.addEventListener('submit', (event) => {
 	contact.phone = form.elements.phone.value;
 	const jsonContact = JSON.stringify(contact);
 
-	const currentItem = document.querySelector(`[data-item=${contact.firstName[0].toLowerCase()}]`);
+	const currentItem = document.querySelector(`[data-item=${contact.lastName[0].toLowerCase()}]`);
 	currentItem.setAttribute('data-active', 'true')
 
 	if (!contactsCollection.has(jsonContact)) {
@@ -83,7 +83,7 @@ form.addEventListener('submit', (event) => {
 				<div class="item-contacts__last-name">Last name: ${contact.lastName}</div>
 				<div class="item-contacts__phone">Phone: ${contact.phone}</div>
 			</div>
-			<button class="item-contacts__btn btn-icon js-item-contacts__btn" type="button">
+			<button class="item-contacts__btn btn-icon js-delete-contact" type="button">
 				<i class="fa-solid fa-square-xmark"></i>
 			</button>
 		`;
@@ -137,44 +137,81 @@ document.querySelector('.js-actions__search')
 document.querySelector('.js-search-modal__close')
 	.addEventListener('click', () => {
 		document.querySelector('[data-isvisible=true]').dataset.isvisible = false;
-	})
 
-document.querySelector('.search-modal__input')
-	.addEventListener('input', (event) => {
-		console.log(document.querySelector('.js-search-modal__contacts').children);
-
-		let currentContact = null;
-		let isMatch = null;
+		searchInput.value = null;
 
 		Array.from(document.querySelector('.js-search-modal__contacts').children)
 			.forEach(elem => elem.remove())
+	})
 
-		contactsCollection.forEach((elem) => {
+const searchInput = document.querySelector('.js-search-modal__input');
+searchInput.addEventListener('input', (event) => {
 
-			currentContact = JSON.parse(elem);
-			isMatch = currentContact.lastName.toLowerCase().startsWith(`${event.target.value.toLowerCase()}`);
+	let currentContact = null;
+	let isMatch = null;
 
-			if (isMatch) {
-				console.log('isHear');
-				
-				const editButton = document.createElement('button');
-				editButton.setAttribute('type', 'button');
-				editButton.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-padding', 'js-item-contacts__btn');
-				editButton.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
+	Array.from(document.querySelector('.js-search-modal__contacts').children)
+		.forEach(elem => elem.remove())
 
-				const targetElemClone = document.querySelector(`[data-json-id='${elem}']`).cloneNode(true);
-				targetElemClone.classList.add('item-contacts_with-extra-padding')
+	contactsCollection.forEach((elem) => {
 
-				document.querySelector('.js-search-modal__contacts').prepend(targetElemClone);
+		currentContact = JSON.parse(elem);
+		isMatch = currentContact.lastName.toLowerCase().startsWith(`${event.target.value.toLowerCase()}`);
 
-				targetElemClone.lastElementChild.before(editButton);
-			}
-		})
+		if (isMatch) {
 
-		if (!event.target.value) {
-			console.log('again clear');
-			
-			Array.from(document.querySelector('.js-search-modal__contacts').children)
-				.forEach(elem => elem.remove());
+			const editButton = document.createElement('button');
+			editButton.setAttribute('type', 'button');
+			editButton.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-padding', 'js-edit-contact');
+			editButton.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
+
+			const targetElemClone = document.querySelector(`[data-json-id='${elem}']`)?.cloneNode(true);
+			targetElemClone?.classList.add('item-contacts_with-extra-padding')
+
+			document.querySelector('.js-search-modal__contacts').prepend(targetElemClone);
+
+			targetElemClone?.lastElementChild.before(editButton);
 		}
-	});
+	})
+
+	if (!event.target.value) {
+		Array.from(document.querySelector('.js-search-modal__contacts').children)
+			.forEach(elem => elem.remove());
+	}
+});
+
+document.querySelector('.js-search-modal__contacts')
+	.addEventListener('click', (event) => {
+
+		const deleteButton = event.target.closest('.js-delete-contact');
+
+		if (deleteButton && deleteButton.contains(event.target)) {
+
+			const deletedContact = deleteButton.parentElement;
+			
+			const [currentDataAttribute] = Object.values({ ...deletedContact.dataset });
+			
+			const identifier = JSON.parse(currentDataAttribute).lastName[0].toLowerCase();
+
+			const contactListItem = document.querySelector(`[data-item=${identifier}]`);
+
+			document.querySelectorAll(`[data-json-id='${currentDataAttribute}']`)
+				.forEach(elem => elem.remove());
+
+			contactsCollection.delete(currentDataAttribute);
+			console.log(contactsCollection);
+
+			countersCollection.forEach((value, key) => {
+				if (key === identifier) {
+					countersCollection.set(key, --value);
+					if (value === 0) contactListItem.removeAttribute('data-active');
+				}
+			})
+
+			contactListItem.firstElementChild.innerText = `${countersCollection.get(identifier)}`;
+
+			!contactListItem.hasAttribute('data-active')
+				? contactListItem.nextElementSibling.hidden = true
+				: null;
+		}
+	})
