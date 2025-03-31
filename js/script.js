@@ -153,13 +153,12 @@ searchInput.addEventListener('input', (event) => {
 	Array.from(document.querySelector('.js-search-modal__contacts').children)
 		.forEach(elem => elem.remove())
 
-	contactsCollection.forEach((elem) => {
+	contactsCollection.forEach(elem => {
 
 		currentContact = JSON.parse(elem);
 		isMatch = currentContact.lastName.toLowerCase().startsWith(`${event.target.value.toLowerCase()}`);
 
 		if (isMatch) {
-
 			const editButton = document.createElement('button');
 			editButton.setAttribute('type', 'button');
 			editButton.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-padding', 'js-edit-contact');
@@ -188,9 +187,9 @@ document.querySelector('.js-search-modal__contacts')
 		if (deleteButton && deleteButton.contains(event.target)) {
 
 			const deletedContact = deleteButton.parentElement;
-			
+
 			const [currentDataAttribute] = Object.values({ ...deletedContact.dataset });
-			
+
 			const identifier = JSON.parse(currentDataAttribute).lastName[0].toLowerCase();
 
 			const contactListItem = document.querySelector(`[data-item=${identifier}]`);
@@ -199,7 +198,6 @@ document.querySelector('.js-search-modal__contacts')
 				.forEach(elem => elem.remove());
 
 			contactsCollection.delete(currentDataAttribute);
-			console.log(contactsCollection);
 
 			countersCollection.forEach((value, key) => {
 				if (key === identifier) {
@@ -214,4 +212,23 @@ document.querySelector('.js-search-modal__contacts')
 				? contactListItem.nextElementSibling.hidden = true
 				: null;
 		}
+	})
+
+document.querySelector('.js-show-all')
+	.addEventListener('click', () => {
+
+		contactsCollection.forEach(elem => {
+			const editButton = document.createElement('button');
+			editButton.setAttribute('type', 'button');
+			editButton.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-padding', 'js-edit-contact');
+			editButton.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
+
+			const targetElemClone = document.querySelector(`[data-json-id='${elem}']`)?.cloneNode(true);
+			targetElemClone?.classList.add('item-contacts_with-extra-padding')
+
+			document.querySelector('.js-search-modal__contacts').prepend(targetElemClone);
+
+			targetElemClone?.lastElementChild.before(editButton);
+		})
+		
 	})
