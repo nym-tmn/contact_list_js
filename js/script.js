@@ -161,7 +161,7 @@ searchInput.addEventListener('input', (event) => {
 		if (isMatch) {
 			const editButton = document.createElement('button');
 			editButton.setAttribute('type', 'button');
-			editButton.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-padding', 'js-edit-contact');
+			editButton.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-margin', 'js-edit-contact');
 			editButton.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
 
 			const targetElemClone = document.querySelector(`[data-json-id='${elem}']`).cloneNode(true);
@@ -211,6 +211,14 @@ document.querySelector('.js-search-modal__contacts')
 			!contactListItem.hasAttribute('data-active')
 				? contactListItem.nextElementSibling.hidden = true
 				: null;
+			return;
+		}
+
+		const editButton = event.target.closest('.js-edit-contact');
+
+		if (editButton && editButton.contains(event.target)) {
+			console.log('edit');
+			document.querySelector('.dialog').showModal();
 		}
 	})
 
@@ -231,7 +239,7 @@ document.querySelector('.js-show-all')
 		sortedContacts.forEach(elem => {
 			const editButton = document.createElement('button');
 			editButton.setAttribute('type', 'button');
-			editButton.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-padding', 'js-edit-contact');
+			editButton.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-margin', 'js-edit-contact');
 			editButton.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
 
 			const targetElemClone = document.querySelector(`[data-json-id='${elem}']`).cloneNode(true);
