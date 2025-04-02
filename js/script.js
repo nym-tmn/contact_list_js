@@ -90,6 +90,10 @@ form.addEventListener('submit', (event) => {
 
 		currentItem.nextElementSibling.prepend(contactCard);
 
+		if (!currentItem.nextElementSibling.hidden) {
+			currentItem.nextElementSibling.hidden = true;
+		}
+
 		countersCollection.forEach((value, key) => {
 			if (key === currentItem.dataset.item) {
 				countersCollection.set(key, ++value)
@@ -103,10 +107,6 @@ form.addEventListener('submit', (event) => {
 	}
 
 	contactsCollection.add(jsonContact);
-
-	if (!currentItem.nextElementSibling.hidden) {
-		currentItem.nextElementSibling.hidden = true;
-	}
 })
 
 document.querySelector('.js-actions__clear-list')
@@ -185,13 +185,9 @@ document.querySelector('.js-search-modal__contacts')
 		const deleteButton = event.target.closest('.js-delete-contact');
 
 		if (deleteButton && deleteButton.contains(event.target)) {
-
 			const deletedContact = deleteButton.parentElement;
-
 			const [currentDataAttribute] = Object.values({ ...deletedContact.dataset });
-
 			const identifier = JSON.parse(currentDataAttribute).lastName[0].toLowerCase();
-
 			const contactListItem = document.querySelector(`[data-item=${identifier}]`);
 
 			document.querySelectorAll(`[data-json-id='${currentDataAttribute}']`)
@@ -214,16 +210,50 @@ document.querySelector('.js-search-modal__contacts')
 			return;
 		}
 
-		const editButton = event.target.closest('.js-edit-contact');
+		const editIcon = event.target.closest('.js-edit-contact');
 
-		if (editButton && editButton.contains(event.target)) {
-			console.log('edit');
-			document.querySelector('.dialog').showModal();
+		if (editIcon && editIcon.contains(event.target)) {
+			dialog.showModal();
+			const editableContact = editIcon.parentElement;
+			const [currentDataAttribute] = Object.values({ ...editableContact.dataset });
+			const currentContactData = JSON.parse(currentDataAttribute);
+
+			const dialogForm = document.querySelector('.js-dialog__form');
+			dialogForm.firstName.value = currentContactData.firstName;
+			dialogForm.lastName.value = currentContactData.lastName;
+			dialogForm.phone.value = currentContactData.phone;
+
+			dialogForm.addEventListener('submit', (event) => {
+				event.preventDefault();
+
+				const data = new FormData(dialogForm);
+				const formData = Object.fromEntries(data.entries());
+
+				contactsCollection.delete(currentDataAttribute);
+
+				document.querySelectorAll(`[data-json-id='${currentDataAttribute}']`)
+					.forEach(elem => {
+						elem.dataset.jsonId = JSON.stringify(formData);
+						elem.querySelector('.item-contacts__first-name').textContent = `First name: ${formData.firstName}`;
+						elem.querySelector('.item-contacts__last-name').textContent = `Last name: ${formData.lastName}`;
+						elem.querySelector('.item-contacts__phone').textContent = `Phone: ${formData.phone}`;
+					})
+
+				contactsCollection.add(JSON.stringify(formData));
+
+				dialog.close();
+			}, { once: true });
+			return;
 		}
 	})
 
 document.querySelector('.js-show-all')
 	.addEventListener('click', () => {
+
+		searchInput.value = null;
+
+		Array.from(document.querySelector('.js-search-modal__contacts').children)
+			.forEach(elem => elem.remove())
 
 		const sortedContacts = [...contactsCollection].sort((a, b) => {
 
@@ -250,3 +280,13 @@ document.querySelector('.js-show-all')
 			targetElemClone.lastElementChild.before(editButton);
 		})
 	})
+
+const dialog = document.querySelector('.dialog');
+dialog.addEventListener('click', (event) => {
+
+	const closeButton = event.target.closest('.js-dialog__close');
+
+	if (closeButton && closeButton.contains(event.target)) {
+		dialog.close();
+	}
+})
