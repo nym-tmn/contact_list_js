@@ -186,14 +186,14 @@ document.querySelector('.js-search-modal__contacts')
 
 		if (deleteButton && deleteButton.contains(event.target)) {
 			const deletedContact = deleteButton.parentElement;
-			const [currentDataAttribute] = Object.values({ ...deletedContact.dataset });
-			const identifier = JSON.parse(currentDataAttribute).lastName[0].toLowerCase();
+			const [currentAttributeData] = Object.values({ ...deletedContact.dataset });
+			const identifier = JSON.parse(currentAttributeData).lastName[0].toLowerCase();
 			const contactListItem = document.querySelector(`[data-item=${identifier}]`);
 
-			document.querySelectorAll(`[data-json-id='${currentDataAttribute}']`)
+			document.querySelectorAll(`[data-json-id='${currentAttributeData}']`)
 				.forEach(elem => elem.remove());
 
-			contactsCollection.delete(currentDataAttribute);
+			contactsCollection.delete(currentAttributeData);
 
 			countersCollection.forEach((value, key) => {
 				if (key === identifier) {
@@ -213,10 +213,12 @@ document.querySelector('.js-search-modal__contacts')
 		const editIcon = event.target.closest('.js-edit-contact');
 
 		if (editIcon && editIcon.contains(event.target)) {
+
 			dialog.showModal();
+
 			const editableContact = editIcon.parentElement;
-			const [currentDataAttribute] = Object.values({ ...editableContact.dataset });
-			const currentContactData = JSON.parse(currentDataAttribute);
+			const [currentAttributeData] = Object.values({ ...editableContact.dataset });
+			const currentContactData = JSON.parse(currentAttributeData);
 
 			const dialogForm = document.querySelector('.js-dialog__form');
 			dialogForm.firstName.value = currentContactData.firstName;
@@ -224,14 +226,15 @@ document.querySelector('.js-search-modal__contacts')
 			dialogForm.phone.value = currentContactData.phone;
 
 			dialogForm.addEventListener('submit', (event) => {
+
 				event.preventDefault();
 
 				const data = new FormData(dialogForm);
 				const formData = Object.fromEntries(data.entries());
 
-				contactsCollection.delete(currentDataAttribute);
+				contactsCollection.delete(currentAttributeData);
 
-				document.querySelectorAll(`[data-json-id='${currentDataAttribute}']`)
+				document.querySelectorAll(`[data-json-id='${currentAttributeData}']`)
 					.forEach(elem => {
 						elem.dataset.jsonId = JSON.stringify(formData);
 						elem.querySelector('.item-contacts__first-name').textContent = `First name: ${formData.firstName}`;
@@ -241,9 +244,56 @@ document.querySelector('.js-search-modal__contacts')
 
 				contactsCollection.add(JSON.stringify(formData));
 
+				const identifier = currentContactData.lastName[0].toLowerCase();
+				const lastNameFirstLetter = formData.lastName[0].toLowerCase();
+				const initialCurrentItem = document.querySelector(`[data-item=${identifier}]`);
+
+				if (identifier !== lastNameFirstLetter) {
+
+					Array.from(initialCurrentItem.nextElementSibling.children)
+						.forEach(elem => {
+
+							const [currentAttributeData] = Object.values({ ...elem.dataset });
+							const currentContactData = JSON.parse(currentAttributeData);
+							const currentContactFirstLetter = currentContactData.lastName[0].toLowerCase();
+
+							if (identifier !== currentContactFirstLetter) {
+
+								const targetCurrentItem = document.querySelector(`[data-item=${lastNameFirstLetter}]`);
+								targetCurrentItem.nextElementSibling.prepend(elem);
+								targetCurrentItem.setAttribute('data-active', 'true');
+
+								countersCollection.forEach((value, key) => {
+									if (key === lastNameFirstLetter) {
+										countersCollection.set(key, ++value)
+									} else if (key === identifier) {
+										countersCollection.set(key, --value);
+										if (value === 0) initialCurrentItem.removeAttribute('data-active');
+									}
+
+									initialCurrentItem.firstElementChild.innerText = `${countersCollection.get(identifier)}`;
+									targetCurrentItem.firstElementChild.innerText = `${countersCollection.get(targetCurrentItem.dataset.item)}`;
+								})
+							}
+						})
+				}
+
+				const searchInputValue = document.querySelector('.js-search-modal__input').value;
+				const searchedContactsContainer = Array.from(document.querySelector('.js-search-modal__contacts').children);
+
+				if (searchInputValue) {
+					searchedContactsContainer.forEach(elem => {
+						const [currentAttributeData] = Object.values({ ...elem.dataset });
+						const currentContactData = JSON.parse(currentAttributeData);
+						const currentContactFirstLetter = currentContactData.lastName[0].toLowerCase();
+						if (identifier !== currentContactFirstLetter) {
+							elem.remove();
+						}
+					});
+				}
+
 				dialog.close();
 			}, { once: true });
-			return;
 		}
 	})
 
