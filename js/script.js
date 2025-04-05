@@ -29,12 +29,12 @@ document.querySelectorAll('.js-contact-list').forEach(elem => {
 			return;
 		}
 
-		const deleteButton = event.target.closest('.js-delete-contact');
+		const deleteIcon = event.target.closest('.js-delete-contact');
 
-		if (deleteButton && deleteButton.contains(event.target)) {
+		if (deleteIcon && deleteIcon.contains(event.target)) {
 
-			const contactListItem = deleteButton.parentElement.parentElement.previousElementSibling;
-			const deletedContact = deleteButton.parentElement;
+			const contactListItem = deleteIcon.parentElement.parentElement.previousElementSibling;
+			const deletedContact = deleteIcon.parentElement;
 			contactsCollection.delete(...Object.values({ ...deletedContact.dataset }));
 
 			countersCollection.forEach((value, key) => {
@@ -131,18 +131,30 @@ document.querySelector('.js-actions__clear-list')
 
 document.querySelector('.js-actions__search')
 	.addEventListener('click', () => {
-		document.querySelector('[data-isvisible=false]').dataset.isvisible = true;
+		document.querySelector('.js-search-modal-overlay').classList.add('active');
 	})
 
 document.querySelector('.js-search-modal__close')
 	.addEventListener('click', () => {
-		document.querySelector('[data-isvisible=true]').dataset.isvisible = false;
+		document.querySelector('.js-search-modal-overlay').classList.remove('active');
 
 		searchInput.value = null;
 
 		Array.from(document.querySelector('.js-search-modal__contacts').children)
 			.forEach(elem => elem.remove())
 	})
+
+const searchModal = document.querySelector('.js-search-modal-overlay');
+searchModal.addEventListener('click', (event) => {
+	if (event.target === searchModal) {
+		searchModal.classList.remove('active');
+
+		searchInput.value = null;
+
+		Array.from(document.querySelector('.js-search-modal__contacts').children)
+			.forEach(elem => elem.remove())
+	}
+});
 
 const searchInput = document.querySelector('.js-search-modal__input');
 searchInput.addEventListener('input', (event) => {
@@ -159,17 +171,17 @@ searchInput.addEventListener('input', (event) => {
 		isMatch = currentContact.lastName.toLowerCase().startsWith(`${event.target.value.toLowerCase()}`);
 
 		if (isMatch) {
-			const editButton = document.createElement('button');
-			editButton.setAttribute('type', 'button');
-			editButton.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-margin', 'js-edit-contact');
-			editButton.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
+			const editIcon = document.createElement('button');
+			editIcon.setAttribute('type', 'button');
+			editIcon.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-margin', 'js-edit-contact');
+			editIcon.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
 
 			const targetElemClone = document.querySelector(`[data-json-id='${elem}']`).cloneNode(true);
 			targetElemClone.classList.add('item-contacts_with-extra-padding')
 
 			document.querySelector('.js-search-modal__contacts').prepend(targetElemClone);
 
-			targetElemClone.lastElementChild.before(editButton);
+			targetElemClone.lastElementChild.before(editIcon);
 		}
 	})
 
@@ -179,13 +191,21 @@ searchInput.addEventListener('input', (event) => {
 	}
 });
 
+const editModal = document.querySelector('.js-edit-modal-overlay');
+
+editModal.addEventListener('click', (event) => {
+	if (event.target === editModal) {
+		editModal.classList.remove('active');
+	}
+})
+
 document.querySelector('.js-search-modal__contacts')
 	.addEventListener('click', (event) => {
 
-		const deleteButton = event.target.closest('.js-delete-contact');
+		const deleteIcon = event.target.closest('.js-delete-contact');
 
-		if (deleteButton && deleteButton.contains(event.target)) {
-			const deletedContact = deleteButton.parentElement;
+		if (deleteIcon && deleteIcon.contains(event.target)) {
+			const deletedContact = deleteIcon.parentElement;
 			const [currentAttributeData] = Object.values({ ...deletedContact.dataset });
 			const identifier = JSON.parse(currentAttributeData).lastName[0].toLowerCase();
 			const contactListItem = document.querySelector(`[data-item=${identifier}]`);
@@ -213,23 +233,22 @@ document.querySelector('.js-search-modal__contacts')
 		const editIcon = event.target.closest('.js-edit-contact');
 
 		if (editIcon && editIcon.contains(event.target)) {
-
-			dialog.showModal();
+			editModal.classList.add('active');
 
 			const editableContact = editIcon.parentElement;
 			const [currentAttributeData] = Object.values({ ...editableContact.dataset });
 			const currentContactData = JSON.parse(currentAttributeData);
 
-			const dialogForm = document.querySelector('.js-dialog__form');
-			dialogForm.firstName.value = currentContactData.firstName;
-			dialogForm.lastName.value = currentContactData.lastName;
-			dialogForm.phone.value = currentContactData.phone;
+			const editModalForm = document.querySelector('.js-edit-modal__form');
+			editModalForm.firstName.value = currentContactData.firstName;
+			editModalForm.lastName.value = currentContactData.lastName;
+			editModalForm.phone.value = currentContactData.phone;
 
-			dialogForm.addEventListener('submit', (event) => {
+			editModalForm.addEventListener('submit', (event) => {
 
 				event.preventDefault();
 
-				const data = new FormData(dialogForm);
+				const data = new FormData(editModalForm);
 				const formData = Object.fromEntries(data.entries());
 
 				contactsCollection.delete(currentAttributeData);
@@ -249,7 +268,6 @@ document.querySelector('.js-search-modal__contacts')
 				const initialCurrentItem = document.querySelector(`[data-item=${identifier}]`);
 
 				if (identifier !== lastNameFirstLetter) {
-
 					Array.from(initialCurrentItem.nextElementSibling.children)
 						.forEach(elem => {
 
@@ -258,7 +276,6 @@ document.querySelector('.js-search-modal__contacts')
 							const currentContactFirstLetter = currentContactData.lastName[0].toLowerCase();
 
 							if (identifier !== currentContactFirstLetter) {
-
 								const targetCurrentItem = document.querySelector(`[data-item=${lastNameFirstLetter}]`);
 								targetCurrentItem.nextElementSibling.prepend(elem);
 								targetCurrentItem.setAttribute('data-active', 'true');
@@ -286,13 +303,14 @@ document.querySelector('.js-search-modal__contacts')
 						const [currentAttributeData] = Object.values({ ...elem.dataset });
 						const currentContactData = JSON.parse(currentAttributeData);
 						const currentContactFirstLetter = currentContactData.lastName[0].toLowerCase();
+
 						if (identifier !== currentContactFirstLetter) {
 							elem.remove();
 						}
 					});
 				}
 
-				dialog.close();
+				editModal.classList.remove('active');
 			}, { once: true });
 		}
 	})
@@ -317,26 +335,26 @@ document.querySelector('.js-show-all')
 		})
 
 		sortedContacts.forEach(elem => {
-			const editButton = document.createElement('button');
-			editButton.setAttribute('type', 'button');
-			editButton.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-margin', 'js-edit-contact');
-			editButton.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
+			const editIcon = document.createElement('button');
+			editIcon.setAttribute('type', 'button');
+			editIcon.classList.add('item-contacts__btn', 'btn-icon', 'js-edit-contact');
+			editIcon.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
 
 			const targetElemClone = document.querySelector(`[data-json-id='${elem}']`).cloneNode(true);
 			targetElemClone.classList.add('item-contacts_with-extra-padding');
 
 			document.querySelector('.js-search-modal__contacts').append(targetElemClone);
 
-			targetElemClone.lastElementChild.before(editButton);
+			targetElemClone.lastElementChild.before(editIcon);
 		})
 	})
 
-const dialog = document.querySelector('.dialog');
-dialog.addEventListener('click', (event) => {
+document.querySelector('.js-edit-modal__close')
+	.addEventListener('click', (event) => {
 
-	const closeButton = event.target.closest('.js-dialog__close');
+		const closeIcon = event.target.closest('.js-edit-modal__close');
 
-	if (closeButton && closeButton.contains(event.target)) {
-		dialog.close();
+	if (closeIcon && closeIcon.contains(event.target)) {
+		document.querySelector('.js-edit-modal-overlay').classList.remove('active');
 	}
 })

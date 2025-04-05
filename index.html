@@ -58,8 +58,8 @@
 				<div class="contact-list__item js-contact-list__item" data-item="z">z</div>
 			</div>
 		</div>
-		<div class="search-modal" data-isvisible="false">
-			<div class="search-modal__content">
+		<div class="search-modal-overlay js-search-modal-overlay">
+			<div class="search-modal">
 				<header class="search-modal__header">
 					<h2 class="search-modal__title">Search contact</h2>
 					<button class="search-modal__close btn-icon btn-icon_big js-search-modal__close" type="button">
@@ -67,27 +67,30 @@
 					</button>
 				</header>
 				<div class="search-modal__body">
-					<input class="search-modal__input input js-search-modal__input" type="text" placeholder="Search..." name="searchContact">
+					<input class="search-modal__input input js-search-modal__input" type="text" placeholder="Search..."
+						name="searchContact">
 					<div class="search-modal__contacts js-search-modal__contacts">
 						<!-- <div class="search-modal__empty">Ничего не найдено</div> -->
 					</div>
 				</div>
 				<input class="search-modal__show-all btn js-show-all" type="button" value="Show all">
 			</div>
-			<dialog class="dialog">
-				<header class="dialog__header">
-					<h3 class="dialog__title">Edit</h3>
-					<button class="dialog__close btn-icon btn-icon_big js-dialog__close" type="button">
-						<i class="fa-solid fa-square-xmark"></i>
-					</button>
-				</header>
-				<form method="dialog" class="dialog__form form-dialog js-dialog__form">
-					<input class="form-dialog__input input" type="text" placeholder="First Name" name="firstName">
-					<input class="form-dialog__input input" type="text" placeholder="Last Name" name="lastName">
-					<input class="form-dialog__input input" type="tel" placeholder="Phone" name="phone">
-					<input class="form-dialog__btn input js-form-dialog__btn" type="submit" value="Edit">
-				</form>
-			</dialog>
+			<div class="edit-modal-overlay js-edit-modal-overlay">
+				<div class="edit-modal">
+					<header class="edit-modal__header">
+						<h3 class="edit-modal__title">Edit</h3>
+						<button class="edit-modal__close btn-icon btn-icon_big js-edit-modal__close" type="button">
+							<i class="fa-solid fa-square-xmark"></i>
+						</button>
+					</header>
+					<form class="edit-modal__form form-edit-modal js-edit-modal__form">
+						<input class="form-edit-modal__input input" type="text" placeholder="First Name" name="firstName">
+						<input class="form-edit-modal__input input" type="text" placeholder="Last Name" name="lastName">
+						<input class="form-edit-modal__input input" type="tel" placeholder="Phone" name="phone">
+						<input class="form-edit-modal__btn btn js-form-edit-modal__btn" type="submit" value="Edit">
+					</form>
+				</div>
+			</div>
 		</div>
 		</div>
 	</main>
