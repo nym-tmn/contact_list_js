@@ -149,8 +149,9 @@ document.querySelector('.js-search-modal__close')
 	})
 
 const searchModal = document.querySelector('.js-search-modal-overlay');
-searchModal.addEventListener('click', (event) => {
+searchModal.addEventListener('mousedown', (event) => {
 	if (event.target === searchModal) {
+		
 		searchModal.classList.remove('active');
 
 		searchInput.value = null;
@@ -203,7 +204,7 @@ searchInput.addEventListener('input', (event) => {
 
 const editModal = document.querySelector('.js-edit-modal-overlay');
 
-editModal.addEventListener('click', (event) => {
+editModal.addEventListener('mousedown', (event) => {
 	if (event.target === editModal) {
 		editModal.classList.remove('active');
 	}
@@ -367,8 +368,6 @@ document.querySelector('.js-show-all')
 
 			targetElemClone.lastElementChild.before(editIcon);
 		})
-
-		console.log(Array.from(document.querySelector('.js-search-modal__contacts').children).length)
 
 		if (Array.from(document.querySelector('.js-search-modal__contacts').children).length > 0) {
 			document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', true);
