@@ -215,10 +215,13 @@
 
 	&__contacts {
 		flex: 1 1 auto;
-		// justify-items: center;
-		// align-content: center;
 		max-height: 300px;
 		overflow-y: auto;
+	}
+
+	&__empty {
+		font-size: 30px;
+		color: rgb(128, 128, 128);
 	}
 }
 

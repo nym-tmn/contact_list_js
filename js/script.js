@@ -132,6 +132,10 @@ document.querySelector('.js-actions__clear-list')
 document.querySelector('.js-actions__search')
 	.addEventListener('click', () => {
 		document.querySelector('.js-search-modal-overlay').classList.add('active');
+
+		if (Array.from(document.querySelector('.js-search-modal__contacts').children).length === 0) {
+			document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', false);
+		}
 	})
 
 document.querySelector('.js-search-modal__close')
@@ -189,6 +193,12 @@ searchInput.addEventListener('input', (event) => {
 		Array.from(document.querySelector('.js-search-modal__contacts').children)
 			.forEach(elem => elem.remove());
 	}
+
+	if (Array.from(document.querySelector('.js-search-modal__contacts').children).length > 0) {
+		document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', true);
+	} else {
+		document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', false);
+	}
 });
 
 const editModal = document.querySelector('.js-edit-modal-overlay');
@@ -227,6 +237,10 @@ document.querySelector('.js-search-modal__contacts')
 			!contactListItem.hasAttribute('data-active')
 				? contactListItem.nextElementSibling.hidden = true
 				: null;
+			
+			if (Array.from(document.querySelector('.js-search-modal__contacts').children).length === 0) {
+				document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', false);
+			}
 			return;
 		}
 
@@ -312,6 +326,10 @@ document.querySelector('.js-search-modal__contacts')
 					});
 				}
 
+				if (Array.from(document.querySelector('.js-search-modal__contacts').children).length === 0) {
+					document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', false);
+				}
+
 				editModal.classList.remove('active');
 			}, { once: true });
 		}
@@ -349,6 +367,13 @@ document.querySelector('.js-show-all')
 
 			targetElemClone.lastElementChild.before(editIcon);
 		})
+
+		console.log(Array.from(document.querySelector('.js-search-modal__contacts').children).length)
+
+		if (Array.from(document.querySelector('.js-search-modal__contacts').children).length > 0) {
+			document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', true);
+		}
+
 	})
 
 document.querySelector('.js-edit-modal__close')
