@@ -65,9 +65,9 @@ form.addEventListener('submit', (event) => {
 	event.preventDefault();
 
 	const contact = {};
-	contact.firstName = form.elements.firstName.value;
-	contact.lastName = form.elements.lastName.value;
-	contact.phone = form.elements.phone.value;
+	contact.firstName = form.elements.firstName.value.trim();
+	contact.lastName = form.elements.lastName.value.trim();
+	contact.phone = form.elements.phone.value.trim();
 	const jsonContact = JSON.stringify(contact);
 
 	const currentItem = document.querySelector(`[data-item=${contact.lastName[0].toLowerCase()}]`);
@@ -250,6 +250,8 @@ document.querySelector('.js-search-modal__contacts')
 
 				const data = new FormData(editModalForm);
 				const formData = Object.fromEntries(data.entries());
+
+				Object.keys(formData).forEach(key => formData[key] = formData[key].trim());
 
 				contactsCollection.delete(currentAttributeData);
 
