@@ -259,7 +259,7 @@ document.querySelector('.js-search-modal__contacts')
 			editModalForm.lastName.value = currentContactData.lastName;
 			editModalForm.phone.value = currentContactData.phone;
 
-			editModalForm.addEventListener('submit', (event) => {
+			const handleEditSubmit = (event) => {
 
 				event.preventDefault();
 
@@ -267,6 +267,15 @@ document.querySelector('.js-search-modal__contacts')
 				const formData = Object.fromEntries(data.entries());
 
 				Object.keys(formData).forEach(key => formData[key] = formData[key].trim());
+
+				if (contactsCollection.has(JSON.stringify(formData))) {
+
+					document.querySelector('.edit-modal__header').prepend(errorMessage);
+
+					errorMessage.classList.add('error-visible');
+					setTimeout(() => errorMessage.classList.remove('error-visible'), 5000)
+					return;
+				}
 
 				contactsCollection.delete(currentAttributeData);
 
@@ -332,7 +341,11 @@ document.querySelector('.js-search-modal__contacts')
 				}
 
 				editModal.classList.remove('active');
-			}, { once: true });
+
+				editModalForm.removeEventListener('submit', handleEditSubmit);
+			}
+
+			editModalForm.addEventListener('submit', handleEditSubmit);
 		}
 	})
 
