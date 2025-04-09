@@ -71,15 +71,41 @@
 	}
 }
 
+.form-actions__input {
+	width: 250px;
+}
+
 .form-actions__input,
 .form-edit-modal__input {
 	font-size: 15px;
 	padding: 0px 5px;
 }
 
-.error {
+.actions__error {
 	position: absolute;
-	top: 34px;
+	top: 42px;
+	opacity: 0;
+	transition: opacity 0.5s ease;
+
+	&.active {
+		opacity: 1;
+	}
+}
+
+.edit-modal__error {
+	position: absolute;
+	top: 36%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	opacity: 0;
+	transition: opacity 0.5s ease;
+
+	&.active {
+			opacity: 1;
+		}
+}
+
+.errorStyle {
 	background-color: map.get($colors, red, light);
 	border: 2px solid map.get($colors, red, medium);
 	border-radius: 5px;
@@ -87,30 +113,6 @@
 	padding: 0px 15px;
 	display: flex;
 	align-items: center;
-	visibility: hidden;
-}
-
-.error-visible {
-	visibility: visible;
-	animation: fadeIn 5s;
-}
-
-@keyframes fadeIn {
-	0% {
-		opacity: 0;
-	}
-
-	10% {
-		opacity: 1;
-	}
-
-	90% {
-		opacity: 1;
-	}
-
-	100% {
-		opacity: 0;
-	}
 }
 
 .contact-list-wrapper {
@@ -172,8 +174,6 @@
 		padding-right: 50px;
 	}
 }
-
-
 
 .search-modal {
 	background-color: map.get($colors, white, base);
@@ -335,7 +335,7 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	z-index: 1000;
+	z-index: 1001;
 	opacity: 0;
 	visibility: hidden;
 	transition: opacity 0.5s ease, visibility 0.5s ease;
@@ -346,4 +346,12 @@
 	opacity: 1;
 	visibility: visible;
 	pointer-events: auto;
+}
+
+.input.error {
+	background-color: map.get($colors, yellow, dark);
+	border-color: map.get($colors, red, medium);
+	transition:
+		border-color 0.5s ease,
+		background-color 0.5s ease;
 }

@@ -18,13 +18,14 @@
 	<main class="main-content">
 		<div class="actions js-actions">
 			<form class="actions__form form-actions js-actions__form">
-				<input class="form-actions__input input" type="text" placeholder="Enter First Name" name="firstName" required>
-				<input class="form-actions__input input" type="text" placeholder="Enter Last Name" name="lastName">
-				<input class="form-actions__input input" type="tel" placeholder="Phone +X XXX XXX XX XX" name="phone">
+					<input class="form-actions__input input js-form-actions__input" type="text" placeholder="Enter First Name" name="firstName">
+					<input class="form-actions__input input js-form-actions__input" type="text" placeholder="Enter Last Name" name="lastName">
+					<input class="form-actions__input input js-form-actions__input" type="tel" placeholder="Phone +X XXX XXX XX XX" name="phone">
 				<input class="form-actions__btn btn" type="submit" value="ADD">
 			</form>
 			<input class="actions__clear-list btn js-actions__clear-list" type="button" value="Clear List">
 			<input class="actions__search btn js-actions__search" type="button" value="Search">
+			<div class="actions__error js-actions__error"></div>
 		</div>
 		<div class="contact-list-wrapper">
 			<div class="contact-list js-contact-list">
@@ -83,10 +84,11 @@
 							<i class="fa-solid fa-square-xmark"></i>
 						</button>
 					</header>
+					<div class="edit-modal__error js-edit-modal__error"></div>
 					<form class="edit-modal__form form-edit-modal js-edit-modal__form">
-						<input class="form-edit-modal__input input" type="text" placeholder="First Name" name="firstName">
-						<input class="form-edit-modal__input input" type="text" placeholder="Last Name" name="lastName">
-						<input class="form-edit-modal__input input" type="tel" placeholder="Phone" name="phone">
+						<input class="form-edit-modal__input input js-form-edit-modal__input" type="text" placeholder="First Name" name="firstName">
+						<input class="form-edit-modal__input input js-form-edit-modal__input" type="text" placeholder="Last Name" name="lastName">
+						<input class="form-edit-modal__input input js-form-edit-modal__input" type="tel" placeholder="Phone" name="phone">
 						<input class="form-edit-modal__btn btn js-form-edit-modal__btn" type="submit" value="Edit">
 					</form>
 				</div>

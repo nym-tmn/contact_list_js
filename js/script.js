@@ -54,15 +54,14 @@ document.querySelectorAll('.js-contact-list').forEach(elem => {
 	})
 })
 
-const errorMessage = document.createElement('div');
-errorMessage.classList.add('error');
-errorMessage.innerText = 'The contact list cannot contain 2 identical contacts.';
-document.querySelector('.js-actions').append(errorMessage);
+const errorPopUp = document.createElement('div');
+errorPopUp.classList.add('errorStyle');
 
-const form = document.querySelector('.js-actions__form');
-form.addEventListener('submit', (event) => {
+const handleSubmit = (event) => {
 
 	event.preventDefault();
+
+	if (!validateForm('.js-form-actions__input', '.js-actions__error', 'Error')) return;
 
 	const contact = {};
 	contact.firstName = form.elements.firstName.value.trim();
@@ -102,12 +101,15 @@ form.addEventListener('submit', (event) => {
 
 		currentItem.firstElementChild.innerText = `${countersCollection.get(currentItem.dataset.item)}`;
 	} else {
-		errorMessage.classList.add('error-visible');
-		setTimeout(() => errorMessage.classList.remove('error-visible'), 5000)
+		const errorMessage = 'The contact list cannot contain 2 identical contacts';
+		showError(null, null, '.js-actions__error', errorMessage);
 	}
 
 	contactsCollection.add(jsonContact);
-})
+}
+
+const form = document.querySelector('.js-actions__form');
+form.addEventListener('submit', handleSubmit)
 
 document.querySelector('.js-actions__clear-list')
 	.addEventListener('click', () => {
@@ -151,7 +153,7 @@ document.querySelector('.js-search-modal__close')
 const searchModal = document.querySelector('.js-search-modal-overlay');
 searchModal.addEventListener('mousedown', (event) => {
 	if (event.target === searchModal) {
-		
+
 		searchModal.classList.remove('active');
 
 		searchInput.value = null;
@@ -202,14 +204,6 @@ searchInput.addEventListener('input', (event) => {
 	}
 });
 
-const editModal = document.querySelector('.js-edit-modal-overlay');
-
-editModal.addEventListener('mousedown', (event) => {
-	if (event.target === editModal) {
-		editModal.classList.remove('active');
-	}
-})
-
 document.querySelector('.js-search-modal__contacts')
 	.addEventListener('click', (event) => {
 
@@ -238,7 +232,7 @@ document.querySelector('.js-search-modal__contacts')
 			!contactListItem.hasAttribute('data-active')
 				? contactListItem.nextElementSibling.hidden = true
 				: null;
-			
+
 			if (Array.from(document.querySelector('.js-search-modal__contacts').children).length === 0) {
 				document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', false);
 			}
@@ -246,6 +240,7 @@ document.querySelector('.js-search-modal__contacts')
 		}
 
 		const editIcon = event.target.closest('.js-edit-contact');
+		const editModal = document.querySelector('.js-edit-modal-overlay');
 
 		if (editIcon && editIcon.contains(event.target)) {
 			editModal.classList.add('active');
@@ -263,17 +258,16 @@ document.querySelector('.js-search-modal__contacts')
 
 				event.preventDefault();
 
+				if (!validateForm('.js-form-edit-modal__input', '.js-edit-modal__error', 'Error')) return;
+
 				const data = new FormData(editModalForm);
 				const formData = Object.fromEntries(data.entries());
 
 				Object.keys(formData).forEach(key => formData[key] = formData[key].trim());
 
 				if (contactsCollection.has(JSON.stringify(formData))) {
-
-					document.querySelector('.edit-modal__header').prepend(errorMessage);
-
-					errorMessage.classList.add('error-visible');
-					setTimeout(() => errorMessage.classList.remove('error-visible'), 5000)
+					const errorMessage = 'The contact list cannot contain 2 identical contacts';
+					showError(null, null, '.js-edit-modal__error', errorMessage);
 					return;
 				}
 
@@ -346,6 +340,23 @@ document.querySelector('.js-search-modal__contacts')
 			}
 
 			editModalForm.addEventListener('submit', handleEditSubmit);
+
+			document.querySelector('.js-edit-modal__close')
+				.addEventListener('click', (event) => {
+					const closeIcon = event.target.closest('.js-edit-modal__close');
+					if (closeIcon && closeIcon.contains(event.target)) {
+						document.querySelector('.js-edit-modal-overlay').classList.remove('active');
+						editModalForm.removeEventListener('submit', handleEditSubmit);
+					}
+				})
+
+			editModal.addEventListener('mousedown', (event) => {
+				if (event.target === editModal) {
+					editModal.classList.remove('active');
+					document.querySelector('.js-edit-modal__form')
+						.removeEventListener('submit', handleEditSubmit)
+				}
+			})
 		}
 	})
 
@@ -388,12 +399,76 @@ document.querySelector('.js-show-all')
 
 	})
 
-document.querySelector('.js-edit-modal__close')
-	.addEventListener('click', (event) => {
+const validateForm = (formSelector, errorSelector, errorMessage) => {
 
-		const closeIcon = event.target.closest('.js-edit-modal__close');
+	let isValid = true;
+	const regexName = /^[A-Z][a-z]*(?:[\s-]+[A-Z][a-z]*)*$/;
+	const regexPhone = /^\+\d{1,4}\d{9}$/;
 
-	if (closeIcon && closeIcon.contains(event.target)) {
-		document.querySelector('.js-edit-modal-overlay').classList.remove('active');
+	const inputs = document.querySelectorAll(formSelector);
+
+	inputs.forEach(input => {
+
+		const value = input.value.trim();
+
+		if (!value) {
+			showError(input, 'Empty input', errorSelector, errorMessage);
+			isValid = false;
+			return;
+		}
+
+		if (input.type !== 'tel') {
+			if (value.length < 3) {
+				showError(input, 'Can\'t be shorter than 3 symbols', errorSelector, errorMessage);
+				isValid = false;
+				return;
+			}
+
+			if (value.length > 20) {
+				showError(input, 'Can\'t be longer than 20 symbols', errorSelector, errorMessage);
+				isValid = false;
+				return;
+			}
+
+			if (!regexName.test(value)) {
+				showError(input, 'Invalid value', errorSelector, errorMessage);
+				isValid = false;
+				return;
+			}
+		}
+
+		if (input.type === 'tel') {
+			if (!regexPhone.test(value)) {
+				showError(input, 'Invalid phone number', errorSelector, errorMessage);
+				isValid = false;
+				return;
+			}
+		}
+	})
+	return isValid;
+}
+
+
+const showError = (input, errorPlaceholder, errorSelector, errorMessage) => {
+
+	const errorContainer = document.querySelector(errorSelector);
+	errorPopUp.innerText = errorMessage;
+	errorContainer.append(errorPopUp);
+	errorContainer.classList.add('active');
+
+	if (input) {
+		const originalPlaceholder = input.placeholder;
+		input.classList.add('error');
+		input.value = '';
+		input.placeholder = errorPlaceholder;
+
+		setTimeout(() => {
+			input.classList.remove('error');
+			input.placeholder = originalPlaceholder;
+		}, 3000);
 	}
-})
+
+	setTimeout(() => {
+		errorContainer.classList.remove('active');
+	}, 3000);
+};

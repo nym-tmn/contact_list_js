@@ -7,7 +7,7 @@ $colors: (
 		dimmed: rgba(0, 0, 0, 0.7),
 	),
 	red: (base: red,
-		light: rgba(253, 119, 153, 0.541),
+		light: rgba(253, 119, 153),
 		medium: rgb(219, 23, 72),
 	),
 	purple: (medium: rgb(135, 93, 190),
@@ -19,5 +19,6 @@ $colors: (
 	),
 	yellow: (light: rgb(243, 250, 139),
 		medium: rgb(255, 208, 1),
+		dark: rgb(252, 203, 99),
 	),
 );
