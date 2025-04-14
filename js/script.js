@@ -3,80 +3,97 @@
 const countersCollection = new Map();
 const contactsCollection = new Set();
 
-document.querySelectorAll('.js-contact-list__item')
-	.forEach(elem => {
-		countersCollection.set(elem.dataset.item, 0);
+// Инициализация и настройка каждого элемента списка
+function initializeContacts() {
+	const contactListItems = document.querySelectorAll('.js-contact-list__item');
+	contactListItems.forEach(elem => setupListItem(elem));
+}
 
-		const countElement = document.createElement('div');
-		countElement.innerText = countersCollection.get(elem.dataset.item);
-		countElement.classList.add('contact-list__counter');
-		elem.append(countElement);
+function setupListItem(listItem) {
+	const itemKey = listItem.dataset.item;
 
-		const contactsContainer = document.createElement('div');
-		contactsContainer.classList.add('contacts')
-		contactsContainer.hidden = true;
-		elem.after(contactsContainer);
-	})
+	countersCollection.set(itemKey, 0);
 
-document.querySelectorAll('.js-contact-list').forEach(elem => {
-	elem.addEventListener('click', (event) => {
+	const countElement = createCounterElement(itemKey);
+	listItem.append(countElement);
 
-		const contactListItem = event.target.closest('.js-contact-list__item');
-		if (contactListItem && contactListItem.contains(event.target)) {
-			contactListItem.hasAttribute('data-active')
-				? contactListItem.nextElementSibling.hidden = !contactListItem.nextElementSibling.hidden
-				: null;
-			return;
-		}
+	const contactsContainer = createContactsContainer();
+	listItem.after(contactsContainer);
+}
 
-		const deleteIcon = event.target.closest('.js-delete-contact');
+function createCounterElement(itemKey) {
+	const countElement = document.createElement('div');
+	countElement.innerText = countersCollection.get(itemKey);
+	countElement.classList.add('contact-list__counter');
+	return countElement;
+}
 
-		if (deleteIcon && deleteIcon.contains(event.target)) {
+function createContactsContainer() {
+	const contactsContainer = document.createElement('div');
+	contactsContainer.classList.add('contacts');
+	contactsContainer.hidden = true;
+	return contactsContainer;
+}
 
-			const contactListItem = deleteIcon.parentElement.parentElement.previousElementSibling;
-			const deletedContact = deleteIcon.parentElement;
-			contactsCollection.delete(...Object.values({ ...deletedContact.dataset }));
+initializeContacts();
 
-			countersCollection.forEach((value, key) => {
-				if (key === contactListItem.dataset.item) {
-					countersCollection.set(key, --value);
-					if (value === 0) contactListItem.removeAttribute('data-active');
-				}
-			})
+// Получение данных из форм
+function getFormData(form) {
+	const data = new FormData(form);
+	const formData = Object.fromEntries(data.entries());
+	Object.keys(formData).forEach(key => formData[key] = formData[key].trim());
+	return formData
+}
 
-			contactListItem.firstElementChild.innerText = `${countersCollection.get(contactListItem.dataset.item)}`
-			deletedContact.remove();
+// Получение текущего элемента списка
+function getCurrentListItem(itemKey) {
+	const currentListItem = document.querySelector(`[data-item=${itemKey}]`);
+	return currentListItem;
+}
 
-			!contactListItem.hasAttribute('data-active')
-				? contactListItem.nextElementSibling.hidden = true
-				: null;
-		}
-	})
-})
+// Переключатель видимости элемента
+function toggleVisibility(element) {
+	element.hidden = !element.hidden;
+}
 
-const errorPopUp = document.createElement('div');
-errorPopUp.classList.add('errorStyle');
+// Обновление состояния видимости пустого блока
+const searchedContacts = document.querySelector('.js-search-modal__contacts');
+const emptyElement = document.querySelector('.js-search-modal__empty');
 
-const handleSubmit = (event) => {
+function hasContacts() {
+	return searchedContacts.children.length > 0;
+}
 
-	event.preventDefault();
+function updateEmptyState() {
+	emptyElement.hidden = hasContacts();
+}
 
-	if (!validateForm('.js-form-actions__input', '.js-actions__error', 'Error')) return;
+// Обновление активного состояния элемента
+function updateActiveState(element, isActive) {
+	isActive
+		? element.setAttribute('data-active', 'true')
+		: element.removeAttribute('data-active');
+}
 
-	const contact = {};
-	contact.firstName = form.elements.firstName.value.trim();
-	contact.lastName = form.elements.lastName.value.trim();
-	contact.phone = form.elements.phone.value.trim();
-	const jsonContact = JSON.stringify(contact);
+// Обновление счетчика
+function updateCounter(element, shouldIncrement) {
+	const itemKey = element.dataset.item;
+	const currentValue = countersCollection.get(itemKey);
+	let newValue = shouldIncrement ? currentValue + 1 : currentValue - 1;
+	countersCollection.set(itemKey, newValue);
 
-	const currentItem = document.querySelector(`[data-item=${contact.lastName[0].toLowerCase()}]`);
-	currentItem.setAttribute('data-active', 'true')
+	const counterElement = element.firstElementChild;
+	counterElement.textContent = newValue;
 
-	if (!contactsCollection.has(jsonContact)) {
-		const contactCard = document.createElement('div');
-		contactCard.classList.add('contacts__item', 'item-contacts', 'js-contacts__item');
-		contactCard.setAttribute('data-json-id', jsonContact);
-		contactCard.innerHTML = `
+	if (newValue === 0) updateActiveState(element, false);
+}
+
+// Функция создания карточки контакта
+function createContactCard(contact, jsonContact) {
+	const contactCard = document.createElement('div');
+	contactCard.classList.add('contacts__item', 'item-contacts', 'js-contacts__item');
+	contactCard.setAttribute('data-json-id', jsonContact);
+	contactCard.innerHTML = `
 			<div class="item-contacts__info">
 				<div class="item-contacts__first-name">First name: ${contact.firstName}</div>
 				<div class="item-contacts__last-name">Last name: ${contact.lastName}</div>
@@ -86,20 +103,32 @@ const handleSubmit = (event) => {
 				<i class="fa-solid fa-square-xmark"></i>
 			</button>
 		`;
+	return contactCard;
+}
 
-		currentItem.nextElementSibling.prepend(contactCard);
+// Обработчик события основной формы на submit
+function handleSubmit(event) {
+	event.preventDefault();
+	if (!validateForm('.js-form-actions__input', '.js-actions__error', 'Error')) return;
 
-		if (!currentItem.nextElementSibling.hidden) {
-			currentItem.nextElementSibling.hidden = true;
-		}
+	const formData = getFormData(mainForm);
 
-		countersCollection.forEach((value, key) => {
-			if (key === currentItem.dataset.item) {
-				countersCollection.set(key, ++value)
-			}
-		})
+	const contact = {};
+	contact.firstName = formData.firstName;
+	contact.lastName = formData.lastName;
+	contact.phone = formData.phone;
+	const jsonContact = JSON.stringify(contact);
 
-		currentItem.firstElementChild.innerText = `${countersCollection.get(currentItem.dataset.item)}`;
+	if (!contactsCollection.has(jsonContact)) {
+		const currentListItem = getCurrentListItem(contact.lastName[0].toLowerCase());
+
+		const contactCard = createContactCard(contact, jsonContact);
+
+		currentListItem.nextElementSibling.prepend(contactCard);
+
+		if (!currentListItem.nextElementSibling.hidden) toggleVisibility(currentListItem.nextElementSibling);
+		updateActiveState(currentListItem, true);
+		updateCounter(currentListItem, true);
 	} else {
 		const errorMessage = 'The contact list cannot contain 2 identical contacts';
 		showError(null, null, '.js-actions__error', errorMessage);
@@ -108,69 +137,150 @@ const handleSubmit = (event) => {
 	contactsCollection.add(jsonContact);
 }
 
-const form = document.querySelector('.js-actions__form');
-form.addEventListener('submit', handleSubmit)
+// Добавление слушателя событий для основной формы
+const mainForm = document.querySelector('.js-actions__form');
+mainForm.addEventListener('submit', handleSubmit);
 
-document.querySelector('.js-actions__clear-list')
-	.addEventListener('click', () => {
+// Функция получения идентификатора
+function getIdentifier(data) {
+	return data.lastName[0].toLowerCase();
+}
 
-		document.querySelectorAll('.js-contacts__item')
-			.forEach(elem => elem.remove())
+// Функция получения параметров контакта
+function getContactParams(element) {
+	const targetContact = element;
+	const [jsonAttribute] = Object.values({ ...targetContact.dataset });
+	const identifier = getIdentifier(JSON.parse(jsonAttribute));
+	const currentListItem = getCurrentListItem(identifier);
+	const currentContactData = JSON.parse(jsonAttribute);
 
-		document.querySelectorAll('[data-active=true]')
-			.forEach(elem => {
-				countersCollection.forEach((_, key) => {
-					if (key === elem.dataset.item) {
-						countersCollection.set(key, 0);
-						elem.removeAttribute('data-active');
-						elem.nextElementSibling.hidden = true;
-					}
-				})
-			})
-
-		contactsCollection.clear();
-	})
-
-document.querySelector('.js-actions__search')
-	.addEventListener('click', () => {
-		document.querySelector('.js-search-modal-overlay').classList.add('active');
-
-		if (Array.from(document.querySelector('.js-search-modal__contacts').children).length === 0) {
-			document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', false);
-		}
-	})
-
-document.querySelector('.js-search-modal__close')
-	.addEventListener('click', () => {
-		document.querySelector('.js-search-modal-overlay').classList.remove('active');
-
-		searchInput.value = null;
-
-		Array.from(document.querySelector('.js-search-modal__contacts').children)
-			.forEach(elem => elem.remove())
-	})
-
-const searchModal = document.querySelector('.js-search-modal-overlay');
-searchModal.addEventListener('mousedown', (event) => {
-	if (event.target === searchModal) {
-
-		searchModal.classList.remove('active');
-
-		searchInput.value = null;
-
-		Array.from(document.querySelector('.js-search-modal__contacts').children)
-			.forEach(elem => elem.remove())
+	return {
+		jsonAttribute,
+		identifier,
+		currentListItem,
+		currentContactData,
 	}
-});
+}
 
+// Функция удаления контакта
+function deleteContact(deleteIcon) {
+	const { jsonAttribute, currentListItem, } = getContactParams(deleteIcon.parentElement);
+
+	document.querySelectorAll(`[data-json-id='${jsonAttribute}']`)
+		.forEach(elem => elem.remove());
+
+	contactsCollection.delete(jsonAttribute);
+	updateCounter(currentListItem, false);
+	if (!currentListItem.hasAttribute('data-active')) toggleVisibility(currentListItem.nextElementSibling);
+}
+
+// Обработчик собитый списка контактов (удаление котнтактов, скрытие/раскрытие)
+function handleContactListClick(event) {
+	const currentListItem = event.target.closest('.js-contact-list__item');
+	if (currentListItem && currentListItem.contains(event.target)) {
+		if (currentListItem.hasAttribute('data-active')) toggleVisibility(currentListItem.nextElementSibling);
+		return;
+	}
+
+	const deleteIcon = event.target.closest('.js-delete-contact');
+	if (deleteIcon && deleteIcon.contains(event.target)) {
+		deleteContact(deleteIcon);
+		return;
+	}
+}
+
+// Добавление слушателя событий списку контактов
+const contactLists = document.querySelectorAll('.js-contact-list');
+contactLists.forEach(list => {
+	list.addEventListener('click', handleContactListClick);
+})
+
+// Отчищаем весь список контактов
+const clearContactsButton = document.querySelector('.js-actions__clear-list');
+clearContactsButton.addEventListener('click', () => {
+
+	const contacts = document.querySelectorAll('.js-contacts__item');
+	const activeItems = document.querySelectorAll('[data-active=true]');
+
+	function clearAllContacts() {
+		contacts.forEach(elem => elem.remove());
+		contactsCollection.clear();
+	}
+
+	function resetActiveItems() {
+		activeItems.forEach(elem => {
+			const key = elem.dataset.item;
+			countersCollection.set(key, 0);
+			updateActiveState(elem, false)
+			if (!elem.nextElementSibling.hidden) toggleVisibility(elem.nextElementSibling);
+		})
+	}
+
+	clearAllContacts();
+	resetActiveItems();
+})
+
+// Функция очистки контактов в модальном окне поиска
+function clearContacts() {
+	Array.from(searchedContacts.children)
+		.forEach(elem => elem.remove())
+}
+
+// Инициализация модального окна поиска
 const searchInput = document.querySelector('.js-search-modal__input');
-searchInput.addEventListener('input', (event) => {
 
+function initSearchModal() {
+	const searchModal = document.querySelector('.js-search-modal-overlay');
+
+	function openSearchModal() {
+		searchModal.classList.add('active');
+		updateEmptyState();
+	}
+
+	const searchButton = document.querySelector('.js-actions__search');
+	searchButton.addEventListener('click', openSearchModal);
+
+	function closeSearchModal() {
+		searchModal.classList.remove('active');
+		searchInput.value = '';
+		clearContacts();
+	}
+
+	const closeIcon = document.querySelector('.js-search-modal__close');
+	closeIcon.addEventListener('click', closeSearchModal);
+
+	searchModal.addEventListener('mousedown', (event) => {
+		if (event.target === searchModal) {
+			closeSearchModal();
+		}
+	});
+}
+
+initSearchModal();
+
+// Функция создания кнопки редактирования
+function createEditButton() {
+	const editIcon = document.createElement('button');
+	editIcon.setAttribute('type', 'button');
+	editIcon.classList.add('item-contacts__btn', 'btn-icon', 'js-edit-contact');
+	editIcon.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
+	return editIcon;
+}
+
+// Функция создания клона контакта
+function createContactClone(identifier) {
+	const contactClobe = document.querySelector(`[data-json-id='${identifier}']`).cloneNode(true);
+	contactClobe.classList.add('item-contacts_with-extra-padding')
+	searchedContacts.prepend(contactClobe);
+	return contactClobe;
+}
+
+// Обработчик собитый инпута для поиска контактов
+function handleSearchInput(event) {
 	let currentContact = null;
 	let isMatch = null;
 
-	Array.from(document.querySelector('.js-search-modal__contacts').children)
-		.forEach(elem => elem.remove())
+	clearContacts();
 
 	contactsCollection.forEach(elem => {
 
@@ -178,226 +288,201 @@ searchInput.addEventListener('input', (event) => {
 		isMatch = currentContact.lastName.toLowerCase().startsWith(`${event.target.value.toLowerCase()}`);
 
 		if (isMatch) {
-			const editIcon = document.createElement('button');
-			editIcon.setAttribute('type', 'button');
-			editIcon.classList.add('item-contacts__btn', 'btn-icon', 'btn-icon_with-extra-margin', 'js-edit-contact');
-			editIcon.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
-
-			const targetElemClone = document.querySelector(`[data-json-id='${elem}']`).cloneNode(true);
-			targetElemClone.classList.add('item-contacts_with-extra-padding')
-
-			document.querySelector('.js-search-modal__contacts').prepend(targetElemClone);
-
-			targetElemClone.lastElementChild.before(editIcon);
+			const editIcon = createEditButton();
+			const contactClone = createContactClone(elem);
+			contactClone.lastElementChild.before(editIcon);
 		}
 	})
 
 	if (!event.target.value) {
-		Array.from(document.querySelector('.js-search-modal__contacts').children)
-			.forEach(elem => elem.remove());
+		clearContacts();
 	}
 
-	if (Array.from(document.querySelector('.js-search-modal__contacts').children).length > 0) {
-		document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', true);
-	} else {
-		document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', false);
+	updateEmptyState();
+}
+
+// Добавление слушателя событий инпуту для поиска контактов
+searchInput.addEventListener('input', handleSearchInput);
+
+// Функция обновления данных контакта
+function updateContact(data, jsonAttribute) {
+	contactsCollection.delete(jsonAttribute);
+
+	const updatedContacts = document.querySelectorAll(`[data-json-id='${jsonAttribute}']`);
+
+	updatedContacts.forEach(elem => {
+		elem.dataset.jsonId = JSON.stringify(data);
+		elem.querySelector('.item-contacts__first-name').textContent = `First name: ${data.firstName}`;
+		elem.querySelector('.item-contacts__last-name').textContent = `Last name: ${data.lastName}`;
+		elem.querySelector('.item-contacts__phone').textContent = `Phone: ${data.phone}`;
+	})
+
+	contactsCollection.add(JSON.stringify(data));
+}
+
+// Функция перемещения контакта при обновлении данных в соответствущую ячейку
+function moveContact(currentId, currentListItem, newId) {
+	Array.from(currentListItem.nextElementSibling.children)
+		.forEach(elem => {
+			const { currentListItem: targetListItem } = getContactParams(elem);
+
+			if (currentId !== newId) {
+				targetListItem.nextElementSibling.prepend(elem);
+				updateActiveState(targetListItem, true);
+				updateCounter(currentListItem, false);
+				updateCounter(targetListItem, true);
+			}
+		})
+}
+
+// Функция обновления списка контактов(в соответствии со значением в searchInput) после изменения данных какого-либо контакта
+function refreshContactList(currentId, searchedContacts) {
+	Array.from(searchedContacts.children).forEach(elem => {
+		const { identifier: newId } = getContactParams(elem);
+
+		if (currentId !== newId) {
+			elem.remove();
+		}
+	});
+}
+
+// Функция инициализации модального окна для редактирования
+function initEditModal(editModal, editModalForm, closeIcon, handleEditSubmit) {
+
+	function openEditModal() {
+		editModal.classList.add('active');
 	}
-});
 
-document.querySelector('.js-search-modal__contacts')
-	.addEventListener('click', (event) => {
+	editModalForm.addEventListener('submit', handleEditSubmit);
 
-		const deleteIcon = event.target.closest('.js-delete-contact');
+	function closeEditModal(handleCloseClick, handleModalBackdropClick) {
+		editModal.classList.remove('active');
+		editModalForm.removeEventListener('submit', handleEditSubmit);
+		closeIcon.removeEventListener('click', handleCloseClick);
+		editModal.removeEventListener('mousedown', handleModalBackdropClick);
+	}
 
-		if (deleteIcon && deleteIcon.contains(event.target)) {
-			const deletedContact = deleteIcon.parentElement;
-			const [currentAttributeData] = Object.values({ ...deletedContact.dataset });
-			const identifier = JSON.parse(currentAttributeData).lastName[0].toLowerCase();
-			const contactListItem = document.querySelector(`[data-item=${identifier}]`);
+	function handleCloseClick() {
+		closeEditModal(handleCloseClick, handleModalBackdropClick);
+	}
 
-			document.querySelectorAll(`[data-json-id='${currentAttributeData}']`)
-				.forEach(elem => elem.remove());
+	closeIcon.addEventListener('click', handleCloseClick);
 
-			contactsCollection.delete(currentAttributeData);
-
-			countersCollection.forEach((value, key) => {
-				if (key === identifier) {
-					countersCollection.set(key, --value);
-					if (value === 0) contactListItem.removeAttribute('data-active');
-				}
-			})
-
-			contactListItem.firstElementChild.innerText = `${countersCollection.get(identifier)}`;
-
-			!contactListItem.hasAttribute('data-active')
-				? contactListItem.nextElementSibling.hidden = true
-				: null;
-
-			if (Array.from(document.querySelector('.js-search-modal__contacts').children).length === 0) {
-				document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', false);
-			}
-			return;
+	function handleModalBackdropClick(event) {
+		if (event.target === editModal) {
+			closeEditModal(handleCloseClick, handleModalBackdropClick);
 		}
+	}
 
-		const editIcon = event.target.closest('.js-edit-contact');
-		const editModal = document.querySelector('.js-edit-modal-overlay');
+	editModal.addEventListener('mousedown', handleModalBackdropClick);
 
-		if (editIcon && editIcon.contains(event.target)) {
-			editModal.classList.add('active');
+	return {
+		openEditModal,
+		handleCloseClick,
+		handleModalBackdropClick,
+		closeEditModal,
+	}
+}
 
-			const editableContact = editIcon.parentElement;
-			const [currentAttributeData] = Object.values({ ...editableContact.dataset });
-			const currentContactData = JSON.parse(currentAttributeData);
+// Обработчик событий найденых контактов
+function handleFoundContactClick(event) {
+	const deleteIcon = event.target.closest('.js-delete-contact');
+	if (deleteIcon && deleteIcon.contains(event.target)) {
+		deleteContact(deleteIcon);
+		updateEmptyState();
+		return;
+	}
 
-			const editModalForm = document.querySelector('.js-edit-modal__form');
-			editModalForm.firstName.value = currentContactData.firstName;
-			editModalForm.lastName.value = currentContactData.lastName;
-			editModalForm.phone.value = currentContactData.phone;
+	const editModal = document.querySelector('.js-edit-modal-overlay');
+	const editModalForm = document.querySelector('.js-edit-modal__form');
+	const closeIcon = document.querySelector('.js-edit-modal__close');
+	const editIcon = event.target.closest('.js-edit-contact');
+	if (editIcon && editIcon.contains(event.target)) {
 
-			const handleEditSubmit = (event) => {
+		const {
+			openEditModal,
+			handleCloseClick,
+			handleModalBackdropClick,
+			closeEditModal
+		} = initEditModal(editModal, editModalForm, closeIcon, handleEditSubmit);
 
-				event.preventDefault();
+		openEditModal();
 
-				if (!validateForm('.js-form-edit-modal__input', '.js-edit-modal__error', 'Error')) return;
+		const { jsonAttribute, identifier: currentIdentifier, currentListItem, currentContactData } = getContactParams(editIcon.parentElement);
 
-				const data = new FormData(editModalForm);
-				const formData = Object.fromEntries(data.entries());
+		editModalForm.firstName.value = currentContactData.firstName;
+		editModalForm.lastName.value = currentContactData.lastName;
+		editModalForm.phone.value = currentContactData.phone;
 
-				Object.keys(formData).forEach(key => formData[key] = formData[key].trim());
+		function handleEditSubmit(event) {
+			event.preventDefault();
+			if (!validateForm('.js-form-edit-modal__input', '.js-edit-modal__error', 'Error')) return;
 
-				if (contactsCollection.has(JSON.stringify(formData))) {
-					const errorMessage = 'The contact list cannot contain 2 identical contacts';
-					showError(null, null, '.js-edit-modal__error', errorMessage);
-					return;
-				}
 
-				contactsCollection.delete(currentAttributeData);
+			const formData = getFormData(editModalForm);
 
-				document.querySelectorAll(`[data-json-id='${currentAttributeData}']`)
-					.forEach(elem => {
-						elem.dataset.jsonId = JSON.stringify(formData);
-						elem.querySelector('.item-contacts__first-name').textContent = `First name: ${formData.firstName}`;
-						elem.querySelector('.item-contacts__last-name').textContent = `Last name: ${formData.lastName}`;
-						elem.querySelector('.item-contacts__phone').textContent = `Phone: ${formData.phone}`;
-					})
-
-				contactsCollection.add(JSON.stringify(formData));
-
-				const identifier = currentContactData.lastName[0].toLowerCase();
-				const lastNameFirstLetter = formData.lastName[0].toLowerCase();
-				const initialCurrentItem = document.querySelector(`[data-item=${identifier}]`);
-
-				if (identifier !== lastNameFirstLetter) {
-					Array.from(initialCurrentItem.nextElementSibling.children)
-						.forEach(elem => {
-
-							const [currentAttributeData] = Object.values({ ...elem.dataset });
-							const currentContactData = JSON.parse(currentAttributeData);
-							const currentContactFirstLetter = currentContactData.lastName[0].toLowerCase();
-
-							if (identifier !== currentContactFirstLetter) {
-								const targetCurrentItem = document.querySelector(`[data-item=${lastNameFirstLetter}]`);
-								targetCurrentItem.nextElementSibling.prepend(elem);
-								targetCurrentItem.setAttribute('data-active', 'true');
-
-								countersCollection.forEach((value, key) => {
-									if (key === lastNameFirstLetter) {
-										countersCollection.set(key, ++value)
-									} else if (key === identifier) {
-										countersCollection.set(key, --value);
-										if (value === 0) initialCurrentItem.removeAttribute('data-active');
-									}
-
-									initialCurrentItem.firstElementChild.innerText = `${countersCollection.get(identifier)}`;
-									targetCurrentItem.firstElementChild.innerText = `${countersCollection.get(targetCurrentItem.dataset.item)}`;
-								})
-							}
-						})
-				}
-
-				const searchInputValue = document.querySelector('.js-search-modal__input').value;
-				const searchedContactsContainer = Array.from(document.querySelector('.js-search-modal__contacts').children);
-
-				if (searchInputValue) {
-					searchedContactsContainer.forEach(elem => {
-						const [currentAttributeData] = Object.values({ ...elem.dataset });
-						const currentContactData = JSON.parse(currentAttributeData);
-						const currentContactFirstLetter = currentContactData.lastName[0].toLowerCase();
-
-						if (identifier !== currentContactFirstLetter) {
-							elem.remove();
-						}
-					});
-				}
-
-				if (Array.from(document.querySelector('.js-search-modal__contacts').children).length === 0) {
-					document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', false);
-				}
-
-				editModal.classList.remove('active');
-
-				editModalForm.removeEventListener('submit', handleEditSubmit);
+			if (contactsCollection.has(JSON.stringify(formData))) {
+				const errorMessage = 'The contact list cannot contain 2 identical contacts';
+				showError(null, null, '.js-edit-modal__error', errorMessage);
+				return;
 			}
 
-			editModalForm.addEventListener('submit', handleEditSubmit);
+			updateContact(formData, jsonAttribute);
 
-			document.querySelector('.js-edit-modal__close')
-				.addEventListener('click', (event) => {
-					const closeIcon = event.target.closest('.js-edit-modal__close');
-					if (closeIcon && closeIcon.contains(event.target)) {
-						document.querySelector('.js-edit-modal-overlay').classList.remove('active');
-						editModalForm.removeEventListener('submit', handleEditSubmit);
-					}
-				})
+			const newIdentifier = getIdentifier(formData);
+			if (currentIdentifier !== newIdentifier) moveContact(currentIdentifier, currentListItem, newIdentifier);
 
-			editModal.addEventListener('mousedown', (event) => {
-				if (event.target === editModal) {
-					editModal.classList.remove('active');
-					document.querySelector('.js-edit-modal__form')
-						.removeEventListener('submit', handleEditSubmit)
-				}
-			})
+			const searchInputValue = document.querySelector('.js-search-modal__input').value;
+			if (searchInputValue) refreshContactList(currentIdentifier, searchedContacts);
+
+			updateEmptyState();
+			closeEditModal(handleCloseClick, handleModalBackdropClick);
 		}
+	}
+}
+
+// Добавление слушателя событий контейнеру найденых контактов
+searchedContacts.addEventListener('click', handleFoundContactClick);
+
+// Функция слртировки контактов по фамилии в алфавитном порядке
+function sortContacts() {
+	const sortedContacts = [...contactsCollection].sort((a, b) => {
+
+		const elemA = document.querySelector(`[data-json-id='${a}']`);
+		const elemB = document.querySelector(`[data-json-id='${b}']`);
+		const lastNameA = elemA.querySelector('.item-contacts__last-name').textContent;
+		const lastNameB = elemB.querySelector('.item-contacts__last-name').textContent;
+
+		return lastNameB.localeCompare(lastNameA);
+	})
+	return sortedContacts;
+}
+
+// Обработчик события на клик по кнопке showAll
+function handleShowAllClick() {
+
+	searchInput.value = null;
+
+	clearContacts();
+
+	const sortedContacts = sortContacts();
+
+	sortedContacts.forEach(elem => {
+		const editIcon = createEditButton();
+		const contactClone = createContactClone(elem);
+		contactClone.lastElementChild.before(editIcon);
 	})
 
-document.querySelector('.js-show-all')
-	.addEventListener('click', () => {
+	updateEmptyState();
+}
 
-		searchInput.value = null;
+// Добавление слушателя событий для кнопки showAll
+const showAllButton = document.querySelector('.js-show-all');
+showAllButton.addEventListener('click', handleShowAllClick);
 
-		Array.from(document.querySelector('.js-search-modal__contacts').children)
-			.forEach(elem => elem.remove())
-
-		const sortedContacts = [...contactsCollection].sort((a, b) => {
-
-			const elemA = document.querySelector(`[data-json-id='${a}']`);
-			const elemB = document.querySelector(`[data-json-id='${b}']`);
-
-			const lastNameA = elemA.querySelector('.item-contacts__last-name').textContent;
-			const lastNameB = elemB.querySelector('.item-contacts__last-name').textContent;
-
-			return lastNameA.localeCompare(lastNameB);
-		})
-
-		sortedContacts.forEach(elem => {
-			const editIcon = document.createElement('button');
-			editIcon.setAttribute('type', 'button');
-			editIcon.classList.add('item-contacts__btn', 'btn-icon', 'js-edit-contact');
-			editIcon.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
-
-			const targetElemClone = document.querySelector(`[data-json-id='${elem}']`).cloneNode(true);
-			targetElemClone.classList.add('item-contacts_with-extra-padding');
-
-			document.querySelector('.js-search-modal__contacts').append(targetElemClone);
-
-			targetElemClone.lastElementChild.before(editIcon);
-		})
-
-		if (Array.from(document.querySelector('.js-search-modal__contacts').children).length > 0) {
-			document.querySelector('.js-search-modal__empty').toggleAttribute('hidden', true);
-		}
-
-	})
+// Валидация формы и обработка ошибок
+const errorPopUp = document.createElement('div');
+errorPopUp.classList.add('errorStyle');
 
 const validateForm = (formSelector, errorSelector, errorMessage) => {
 
@@ -447,7 +532,6 @@ const validateForm = (formSelector, errorSelector, errorMessage) => {
 	})
 	return isValid;
 }
-
 
 const showError = (input, errorPlaceholder, errorSelector, errorMessage) => {
 
