@@ -2,11 +2,59 @@
 
 const countersCollection = new Map();
 const contactsCollection = new Set();
+const STORAGE_KEY = 'phoneBookContacts';
+
+function loadFromStorage() {
+	const storedData = localStorage.getItem(STORAGE_KEY);
+	if (storedData) {
+		const parsedData = JSON.parse(storedData);
+
+		parsedData.contacts.forEach(contact => {
+			contactsCollection.add(contact);
+		});
+
+		Object.entries(parsedData.counters).forEach(([key, value]) => {
+			countersCollection.set(key, value);
+		});
+
+		restoreUI(parsedData.contacts);
+	}
+}
+
+// Функция для восстановления UI
+function restoreUI(contacts) {
+	contacts.forEach(jsonContact => {
+		const contact = JSON.parse(jsonContact);
+		const currentListItem = getCurrentListItem(contact.lastName[0].toLowerCase());
+
+		const contactCard = createContactCard(contact, jsonContact);
+		currentListItem.nextElementSibling.prepend(contactCard);
+
+		if (!currentListItem.hasAttribute('data-active')) {
+			updateActiveState(currentListItem, true);
+		}
+
+		const counterElement = currentListItem.querySelector('.contact-list__counter');
+		counterElement.textContent = countersCollection.get(contact.lastName[0].toLowerCase());
+	});
+}
+
+// Функция для сохранения данных в localStorage
+function saveToStorage() {
+	const dataToSave = {
+		contacts: Array.from(contactsCollection),
+		counters: Object.fromEntries(countersCollection)
+	};
+
+	localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+}
 
 // Инициализация и настройка каждого элемента списка
 function initializeContacts() {
 	const contactListItems = document.querySelectorAll('.js-contact-list__item');
 	contactListItems.forEach(elem => setupListItem(elem));
+
+	loadFromStorage();
 }
 
 function setupListItem(listItem) {
@@ -135,6 +183,7 @@ function handleSubmit(event) {
 	}
 
 	contactsCollection.add(jsonContact);
+	saveToStorage();
 }
 
 // Добавление слушателя событий для основной формы
@@ -172,6 +221,7 @@ function deleteContact(deleteIcon) {
 	contactsCollection.delete(jsonAttribute);
 	updateCounter(currentListItem, false);
 	if (!currentListItem.hasAttribute('data-active')) toggleVisibility(currentListItem.nextElementSibling);
+	saveToStorage();
 }
 
 // Обработчик собитый списка контактов (удаление котнтактов, скрытие/раскрытие)
@@ -218,6 +268,7 @@ clearContactsButton.addEventListener('click', () => {
 
 	clearAllContacts();
 	resetActiveItems();
+	saveToStorage();
 })
 
 // Функция очистки контактов в модальном окне поиска
@@ -318,6 +369,7 @@ function updateContact(data, jsonAttribute) {
 	})
 
 	contactsCollection.add(JSON.stringify(data));
+	saveToStorage();
 }
 
 // Функция перемещения контакта при обновлении данных в соответствущую ячейку
@@ -333,6 +385,7 @@ function moveContact(currentId, currentListItem, newId) {
 				updateCounter(targetListItem, true);
 			}
 		})
+	saveToStorage();
 }
 
 // Функция обновления списка контактов(в соответствии со значением в searchInput) после изменения данных какого-либо контакта
