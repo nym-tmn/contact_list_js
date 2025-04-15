@@ -105,7 +105,7 @@
 		}
 }
 
-.errorStyle {
+.error-style {
 	background-color: map.get($colors, red, light);
 	border: 2px solid map.get($colors, red, medium);
 	border-radius: 5px;
@@ -317,11 +317,32 @@
 .input {
 	border-radius: 6px;
 	border: 2px solid map.get($colors, gray);
-	transition: all 0.4s;
+	transition: all 0.5s;
 
 	&:hover,
 	&:focus {
 		border-color: map.get($colors, purple, dark);
+	}
+
+	&.error {
+			background-color: map.get($colors, yellow, dark);
+			border-color: map.get($colors, red, medium);
+			animation: shake 0.5s;
+		}
+}
+
+@keyframes shake {
+
+	0%,	100% {
+		transform: translateX(0);
+	}
+
+	20%,	60% {
+		transform: translateX(-5px);
+	}
+
+	40%,	80% {
+		transform: translateX(5px);
 	}
 }
 
@@ -346,12 +367,4 @@
 	opacity: 1;
 	visibility: visible;
 	pointer-events: auto;
-}
-
-.input.error {
-	background-color: map.get($colors, yellow, dark);
-	border-color: map.get($colors, red, medium);
-	transition:
-		border-color 0.5s ease,
-		background-color 0.5s ease;
 }
