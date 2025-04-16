@@ -1,13 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="./styles/css/style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<script src="./js/script.js" defer></script>
 	<title>Contact List JS</title>
 </head>
-<body>
 
+<body class="body">
+	<header class="header">
+		<h1 class="header__title">Contact List JS</h1>
+		<a class="header__link" target="_blank" href="#">GitHub Repository link</a>
+	</header>
+	<main class="main-content">
+		<div class="actions js-actions">
+			<form class="actions__form form-actions js-actions__form">
+					<input class="form-actions__input input js-form-actions__input" type="text" placeholder="Enter First Name" name="firstName" autocomplete="off">
+					<input class="form-actions__input input js-form-actions__input" type="text" placeholder="Enter Last Name" name="lastName" autocomplete="off">
+					<input class="form-actions__input input js-form-actions__input" type="tel" placeholder="Phone +X XXX XXX XX XX" name="phone" autocomplete="off">
+				<input class="form-actions__btn btn" type="submit" value="ADD">
+			</form>
+			<input class="actions__clear-list btn js-actions__clear-list" type="button" value="Clear List">
+			<input class="actions__search btn js-actions__search" type="button" value="Search">
+			<div class="actions__error error-style js-actions__error"></div>
+		</div>
+		<div class="contact-list-wrapper">
+			<div class="contact-list js-contact-list">
+				<div class="contact-list__item js-contact-list__item" data-item="a">a</div>
+				<div class="contact-list__item js-contact-list__item" data-item="b">b</div>
+				<div class="contact-list__item js-contact-list__item" data-item="c">c</div>
+				<div class="contact-list__item js-contact-list__item" data-item="d">d</div>
+				<div class="contact-list__item js-contact-list__item" data-item="e">e</div>
+				<div class="contact-list__item js-contact-list__item" data-item="f">f</div>
+				<div class="contact-list__item js-contact-list__item" data-item="g">g</div>
+				<div class="contact-list__item js-contact-list__item" data-item="h">h</div>
+				<div class="contact-list__item js-contact-list__item" data-item="i">i</div>
+				<div class="contact-list__item js-contact-list__item" data-item="j">j</div>
+				<div class="contact-list__item js-contact-list__item" data-item="k">k</div>
+				<div class="contact-list__item js-contact-list__item" data-item="l">l</div>
+				<div class="contact-list__item js-contact-list__item" data-item="m">m</div>
+			</div>
+			<div class="contact-list js-contact-list">
+				<div class="contact-list__item js-contact-list__item" data-item="n">n</div>
+				<div class="contact-list__item js-contact-list__item" data-item="o">o</div>
+				<div class="contact-list__item js-contact-list__item" data-item="p">p</div>
+				<div class="contact-list__item js-contact-list__item" data-item="q">q</div>
+				<div class="contact-list__item js-contact-list__item" data-item="r">r</div>
+				<div class="contact-list__item js-contact-list__item" data-item="s">s</div>
+				<div class="contact-list__item js-contact-list__item" data-item="t">t</div>
+				<div class="contact-list__item js-contact-list__item" data-item="u">u</div>
+				<div class="contact-list__item js-contact-list__item" data-item="v">v</div>
+				<div class="contact-list__item js-contact-list__item" data-item="w">w</div>
+				<div class="contact-list__item js-contact-list__item" data-item="x">x</div>
+				<div class="contact-list__item js-contact-list__item" data-item="y">y</div>
+				<div class="contact-list__item js-contact-list__item" data-item="z">z</div>
+			</div>
+		</div>
+		<div class="search-modal-overlay js-search-modal-overlay">
+			<div class="search-modal">
+				<header class="search-modal__header">
+					<h2 class="search-modal__title">Search contact</h2>
+					<button class="search-modal__close btn-icon btn-icon_big js-search-modal__close" type="button">
+						<i class="fa-solid fa-square-xmark"></i>
+					</button>
+				</header>
+				<div class="search-modal__body">
+					<input class="search-modal__input input js-search-modal__input" type="text" placeholder="Search..."
+						name="searchContact" autocomplete="off">
+						<div class="search-modal__empty js-search-modal__empty">Ничего не найдено</div>
+					<div class="search-modal__contacts js-search-modal__contacts">
+					</div>
+				</div>
+				<input class="search-modal__show-all btn js-show-all" type="button" value="Show all">
+			</div>
+			<div class="edit-modal-overlay js-edit-modal-overlay">
+				<div class="edit-modal">
+					<header class="edit-modal__header">
+						<h3 class="edit-modal__title">Edit</h3>
+						<button class="edit-modal__close btn-icon btn-icon_big js-edit-modal__close" type="button">
+							<i class="fa-solid fa-square-xmark"></i>
+						</button>
+					</header>
+					<div class="edit-modal__error error-style js-edit-modal__error"></div>
+					<form class="edit-modal__form form-edit-modal js-edit-modal__form">
+						<input class="form-edit-modal__input input js-form-edit-modal__input" type="text" placeholder="First Name" name="firstName" autocomplete="off">
+						<input class="form-edit-modal__input input js-form-edit-modal__input" type="text" placeholder="Last Name" name="lastName" autocomplete="off">
+						<input class="form-edit-modal__input input js-form-edit-modal__input" type="tel" placeholder="Phone" name="phone" autocomplete="off">
+						<input class="form-edit-modal__btn btn js-form-edit-modal__btn" type="submit" value="Edit">
+					</form>
+				</div>
+			</div>
+		</div>
+		</div>
+	</main>
 </body>
+
 </html>
