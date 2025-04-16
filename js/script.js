@@ -170,21 +170,16 @@ function handleAddSubmit(event) {
 	if (displayErrors(mainForm, errors)) return;
 
 	const jsonContact = JSON.stringify(contact);
+	const currentListItem = getCurrentListItem(getIdentifier(contact));
+	const contactCard = createContactCard(contact, jsonContact);
+	currentListItem.nextElementSibling.prepend(contactCard);
 
-	if (!contactsCollection.has(jsonContact)) {
-		const currentListItem = getCurrentListItem(getIdentifier(contact));
-
-		const contactCard = createContactCard(contact, jsonContact);
-
-		currentListItem.nextElementSibling.prepend(contactCard);
-
-		if (!currentListItem.nextElementSibling.hidden) {
-			toggleVisibility(currentListItem.nextElementSibling)
-		}
-
-		updateActiveState(currentListItem, true);
-		updateCounter(currentListItem, true);
+	if (!currentListItem.nextElementSibling.hidden) {
+		toggleVisibility(currentListItem.nextElementSibling)
 	}
+
+	updateActiveState(currentListItem, true);
+	updateCounter(currentListItem, true);
 	contactsCollection.add(jsonContact);
 	saveToStorage();
 }
@@ -474,10 +469,6 @@ function handleFoundContactClick(event) {
 			event.preventDefault();
 
 			const formData = getFormData(editModalForm);
-			console.log(jsonAttribute);
-			console.log(JSON.stringify(formData));
-			
-			
 
 			const updatedContact = {
 				firstName: formData.firstName,
@@ -485,10 +476,7 @@ function handleFoundContactClick(event) {
 				phone: formData.phone
 			};
 
-			const checkDuplicate = jsonAttribute === JSON.stringify(updatedContact);
-			console.log(checkDuplicate);
-			
-			const errors = validateContact(updatedContact, checkDuplicate);
+			const errors = validateContact(updatedContact);
 			if (displayErrors(editModalForm, errors)) return;
 
 			updateContact(updatedContact, jsonAttribute);
@@ -552,6 +540,7 @@ const ErrorType = {
 	NAME_FORMAT: 'Invalid value',
 	PHONE_FORMAT: 'Invalid phone number',
 	DUPLICATE_CONTACT: 'Contact already exists',
+	DUPLICATE_PHONE: 'This phone number already exists',
 };
 
 const FieldType = {
@@ -567,7 +556,7 @@ const ErrorContainers = {
 
 function validateField(value, fieldType) {
 	const regexName = /^[A-Z][a-z]*(?:[\s-]+[A-Z][a-z]*)*$/;
-	const regexPhone = /^\+\d{1,4}\d{10}$/;
+	const regexPhone = /^\+\d{1,3}\d{10}$/;
 	const error = [];
 
 	if (!value) {
@@ -596,23 +585,34 @@ function validateField(value, fieldType) {
 	}
 }
 
-function validateContact(contact, checkDuplicate = true) {
+function validateContact(contact) {
 	const errors = {
 		[FieldType.FIRST_NAME]: validateField(contact.firstName, FieldType.FIRST_NAME),
 		[FieldType.LAST_NAME]: validateField(contact.lastName, FieldType.LAST_NAME),
 		[FieldType.PHONE]: validateField(contact.phone, FieldType.PHONE),
 	};
 
-	if (checkDuplicate) {
-		const jsonContact = JSON.stringify(contact);
-		if (contactsCollection.has(jsonContact)) {
-			errors.general = ErrorType.DUPLICATE_CONTACT;
-		}
+	const jsonContact = JSON.stringify(contact);
+	const isDuplicateContact = contactsCollection.has(jsonContact);
+
+	let isDuplicatePhone = false;
+	if (!isDuplicateContact) {
+		contactsCollection.forEach(existingContact => {
+			const existing = JSON.parse(existingContact);
+			if (existing.phone === contact.phone) {
+				isDuplicatePhone = true;
+			}
+		})
 	}
+
+	if (isDuplicateContact) {
+		errors.general = ErrorType.DUPLICATE_CONTACT;
+	} else if (isDuplicatePhone) {
+		errors.general = ErrorType.DUPLICATE_PHONE;
+	}
+
 	return errors;
 }
-
-
 
 let errorTimeout = null;
 const originalPlaceholders = new Map();
@@ -636,17 +636,17 @@ function displayErrors(formElement, errors) {
 		if (fieldErrors?.length && fieldName !== 'general') {
 			const input = formElement.querySelector(`[name="${fieldName}"]`);
 
-				if (!originalPlaceholders.has(input)) {
-					originalPlaceholders.set(input, input.placeholder);
-				}
-			
-				const errorContainer = document.querySelector(errorContainerSelector);
-				errorContainer.textContent = 'Error';
-				errorContainer.classList.add('active');
-				input.value = '';
-				input.placeholder = fieldErrors.join(', ');
-				input.classList.add('error');
-				hasErrors = true;
+			if (!originalPlaceholders.has(input)) {
+				originalPlaceholders.set(input, input.placeholder);
+			}
+
+			const errorContainer = document.querySelector(errorContainerSelector);
+			errorContainer.textContent = 'Error';
+			errorContainer.classList.add('active');
+			input.value = '';
+			input.placeholder = fieldErrors.join(', ');
+			input.classList.add('error');
+			hasErrors = true;
 		}
 	});
 
@@ -658,7 +658,7 @@ function displayErrors(formElement, errors) {
 	}
 
 	if (hasErrors) {
-	errorTimeout = setTimeout(() => {
+		errorTimeout = setTimeout(() => {
 			clearErrors(formElement, errorContainerSelector);
 			errorTimeout = null;
 		}, 3000);
@@ -674,18 +674,18 @@ function restoreOriginalPlaceholders() {
 }
 
 function clearErrors(formElement, errorContainerSelector) {
-  restoreOriginalPlaceholders();
-  
-  formElement.querySelectorAll('.error').forEach(input => {
-    input.classList.remove('error');
-  });
+	restoreOriginalPlaceholders();
 
-  const errorContainer = document.querySelector(errorContainerSelector);
-  if (errorContainer) {
-    errorContainer.classList.remove('active');
-  }
+	formElement.querySelectorAll('.error').forEach(input => {
+		input.classList.remove('error');
+	});
 
-  formElement.querySelectorAll('input').forEach(input => {
-    originalPlaceholders.delete(input);
-  });
+	const errorContainer = document.querySelector(errorContainerSelector);
+	if (errorContainer) {
+		errorContainer.classList.remove('active');
+	}
+
+	formElement.querySelectorAll('input').forEach(input => {
+		originalPlaceholders.delete(input);
+	});
 }
