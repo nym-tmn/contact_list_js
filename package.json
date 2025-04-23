@@ -4,8 +4,11 @@
   "description": "contact_list_js",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+		"start-server": "live-server --open=public --port=8080",
+		"tsc-watch": "tsc --watch",
+		"start-gulp": "npx gulp",
+		"start": "concurrently \"npm run start-gulp\" \"npm run tsc-watch\" \"npm run start-server\""
+	},
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -16,5 +19,10 @@
     "gulp-sass": "^6.0.1",
     "gulp-sourcemaps": "^3.0.0",
     "sass": "^1.86.0"
-  }
+  },
+	"devDependencies": {
+		"concurrently": "^9.1.2",
+		"live-server": "^1.2.2",
+		"typescript": "^5.8.3"
+	}
 }

@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"target": "ES6", // Совместимость с современным JS
+		"module": "ES6", // Используйте "CommonJS" для Node.js
+		"allowJs": true,
+		// "checkJs": true,
+		"outDir": "./dist", // Папка для скомпилированных JS-файлов
+		"rootDir": "./src", // Папка с исходным TS-кодом
+		"strict": true, // Включение строгой проверки типов
+		"esModuleInterop": true // Для совместимости с CommonJS/ESM
+	},
+	"include": [
+		"src/**/*"
+, "src/index.ts"	],
+	"exclude": [
+		"node_modules"
+	]
+}

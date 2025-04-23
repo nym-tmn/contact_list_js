@@ -7,17 +7,17 @@ async function compileSass() {
 	const autoprefixer = await import('gulp-autoprefixer');
 
 	return gulp
-		.src('styles/scss/**/*.scss')
+		.src('public/styles/scss/**/*.scss')
 		.pipe(sourcemaps.init())
 		.pipe(sass().on('error', sass.logError))
 		.pipe(autoprefixer.default())
 		.pipe(cleanCSS())
 		.pipe(sourcemaps.write('.'))
-		.pipe(gulp.dest('styles/css'));
+		.pipe(gulp.dest('public/styles/css'));
 }
 
 function watchSass() {
-	gulp.watch('styles/scss/**/*.scss', compileSass);
+	gulp.watch('public/styles/scss/**/*.scss', compileSass);
 }
 
 gulp.task('styles', compileSass);
