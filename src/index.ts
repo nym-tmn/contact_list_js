@@ -1,4 +1,6 @@
-'use strict'
+// import './../assets/styles/scss/style.scss';
+import '@assets/styles/scss/style.scss'
+// import '@src/index';
 
 const countersCollection = new Map();
 const contactsCollection = new Set();

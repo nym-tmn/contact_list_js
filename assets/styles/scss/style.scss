@@ -1,8 +1,9 @@
 // Reset styles
 @use '_reset';
+
+// @import 'variables';
 @use 'variables' as *;
 @use 'sass:map';
-// @import 'variables';
 
 // Fonts
 @font-face {

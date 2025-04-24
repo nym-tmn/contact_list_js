@@ -4,25 +4,14 @@
   "description": "contact_list_js",
   "main": "index.js",
   "scripts": {
-		"start-server": "live-server --open=public --port=8080",
-		"tsc-watch": "tsc --watch",
-		"start-gulp": "npx gulp",
-		"start": "concurrently \"npm run start-gulp\" \"npm run tsc-watch\" \"npm run start-server\""
-	},
+    "start": "vite",
+		"build": "vite build"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "gulp": "^5.0.0",
-    "gulp-autoprefixer": "^9.0.0",
-    "gulp-clean-css": "^4.3.0",
-    "gulp-sass": "^6.0.1",
-    "gulp-sourcemaps": "^3.0.0",
-    "sass": "^1.86.0"
-  },
-	"devDependencies": {
-		"concurrently": "^9.1.2",
-		"live-server": "^1.2.2",
-		"typescript": "^5.8.3"
-	}
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "vite": "^6.3.3"
+  }
 }
