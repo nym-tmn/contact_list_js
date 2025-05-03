@@ -3,13 +3,6 @@ import path from 'path';
 
 export default defineConfig({
 	base: '/contact_list_js/',
-	build: {
-		outDir: 'dist',
-		emptyOutDir: true,
-		rollupOptions: {
-			input: path.resolve(__dirname, 'index.html') // Убедитесь, что путь правильный
-		}
-	},
 	server: {
 		port: 3000,
 	},
