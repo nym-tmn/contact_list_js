@@ -4,17 +4,14 @@
   "description": "contact_list_js",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "vite",
+		"build": "vite build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "gulp": "^5.0.0",
-    "gulp-autoprefixer": "^9.0.0",
-    "gulp-clean-css": "^4.3.0",
-    "gulp-sass": "^6.0.1",
-    "gulp-sourcemaps": "^3.0.0",
-    "sass": "^1.86.0"
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "vite": "^6.3.3"
   }
 }
