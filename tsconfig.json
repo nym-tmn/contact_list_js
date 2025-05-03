@@ -19,7 +19,6 @@
 		"noUncheckedIndexedAccess": true,
 		"noImplicitOverride": true,
 		"isolatedModules": true,
-		"noPropertyAccessFromIndexSignature": true,
 
 		"baseUrl": "./",
 		"paths": {
